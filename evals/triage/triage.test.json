@@ -1,0 +1,393 @@
+{
+  "eval_set_id": "triage_evals",
+  "name": "Triage Agent Evaluations — 15 Real-World SOC Scenarios",
+  "eval_cases": [
+    {
+      "eval_id": "phishing_credential_harvest",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "## TASK\n\nTriage the following Chronicle SecOps case following your instructions.\n\n**Case ID:** CASE-EVAL-001\n**Client ID:** eval-client\n**Alert Type:** PHISHING\n**Initial Severity:** HIGH\n**Autonomous Mode:** True\n\nAdditional context:\nUser john.doe@company.com received a suspicious email with a link to login-secure.example.com. The user clicked the link and may have entered credentials. Source IP 203.0.113.42 is flagged in threat intel."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "Based on my triage analysis of CASE-EVAL-001:\n\n```json\n{\n  \"case_id\": \"CASE-EVAL-001\",\n  \"alert_type\": \"PHISHING\",\n  \"verdict\": \"MALICIOUS\",\n  \"priority\": \"HIGH\",\n  \"confidence_score\": 0.92,\n  \"recommended_action\": \"CONTAIN\",\n  \"key_indicators\": [\"credential_harvesting_page\", \"malicious_ip_203.0.113.42\", \"user_credentials_submitted\"],\n  \"iocs_found\": [{\"type\": \"IP\", \"value\": \"203.0.113.42\"}, {\"type\": \"DOMAIN\", \"value\": \"login-secure.example.com\"}, {\"type\": \"USER\", \"value\": \"john.doe@company.com\"}],\n  \"summary\": \"High-confidence phishing attack. User john.doe clicked malicious link and submitted credentials to known phishing domain. IP 203.0.113.42 is confirmed malicious C2 infrastructure.\",\n  \"escalation_notes\": \"Immediate credential reset required for john.doe@company.com. Domain login-secure.example.com is active credential harvester.\"\n}\n```\n\nI have added a detailed triage comment to the case."}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_case", "args": {"case_id": "CASE-EVAL-001"}},
+              {"name": "list_case_alerts", "args": {"case_id": "CASE-EVAL-001"}},
+              {"name": "translate_udm_query", "args": {"natural_language_query": "network connections to IP 203.0.113.42 in the last 24 hours"}},
+              {"name": "udm_search", "args": {"query": "target.ip = \"203.0.113.42\""}},
+              {"name": "get_ioc_match", "args": {"value": "203.0.113.42"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-001", "comment": "Triage assessment"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "malware_encoded_powershell",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "## TASK\n\nTriage the following Chronicle SecOps case following your instructions.\n\n**Case ID:** CASE-EVAL-002\n**Client ID:** eval-client\n**Alert Type:** MALWARE\n**Initial Severity:** MEDIUM\n**Autonomous Mode:** True\n\nAdditional context:\nEndpoint workstation-07 triggered a malware detection rule. Process powershell.exe launched with encoded command (-EncodedCommand flag). No lateral movement observed yet. User is a developer who occasionally uses PowerShell scripts."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "Based on my triage analysis of CASE-EVAL-002:\n\n```json\n{\n  \"case_id\": \"CASE-EVAL-002\",\n  \"alert_type\": \"MALWARE\",\n  \"verdict\": \"SUSPICIOUS\",\n  \"priority\": \"MEDIUM\",\n  \"confidence_score\": 0.65,\n  \"recommended_action\": \"MONITOR\",\n  \"key_indicators\": [\"encoded_powershell\", \"developer_workstation\", \"no_lateral_movement\"],\n  \"iocs_found\": [{\"type\": \"HOST\", \"value\": \"workstation-07\"}],\n  \"summary\": \"Encoded PowerShell execution detected on workstation-07. No lateral movement or data exfiltration observed. User is a developer — could be legitimate admin activity or early-stage malware.\",\n  \"escalation_notes\": \"Monitor for additional suspicious activity. Check if PowerShell usage is normal for this user's role.\"\n}\n```"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_case", "args": {"case_id": "CASE-EVAL-002"}},
+              {"name": "list_case_alerts", "args": {"case_id": "CASE-EVAL-002"}},
+              {"name": "translate_udm_query", "args": {"natural_language_query": "process executions on workstation-07 in the last hour"}},
+              {"name": "udm_search", "args": {"query": "principal.hostname = \"workstation-07\" AND target.process.command_line = /.*EncodedCommand.*/"}},
+              {"name": "summarize_entity", "args": {"entity_value": "workstation-07"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-002", "comment": "Triage assessment"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "benign_vulnerability_scanner",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "## TASK\n\nTriage the following Chronicle SecOps case following your instructions.\n\n**Case ID:** CASE-EVAL-003\n**Client ID:** eval-client\n**Alert Type:** SUSPICIOUS_PROCESS\n**Initial Severity:** LOW\n**Autonomous Mode:** True\n\nAdditional context:\nRoutine vulnerability scanner nessus-scanner.internal triggered a network scan alert. This is a known authorized scanner running weekly security assessments. The source IP 10.0.50.100 is in the scanner subnet 10.0.50.0/24."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "Based on my triage analysis of CASE-EVAL-003:\n\n```json\n{\n  \"case_id\": \"CASE-EVAL-003\",\n  \"alert_type\": \"SUSPICIOUS_PROCESS\",\n  \"verdict\": \"BENIGN\",\n  \"priority\": \"INFORMATIVE\",\n  \"confidence_score\": 0.96,\n  \"recommended_action\": \"CLOSE_FP\",\n  \"key_indicators\": [\"known_scanner\", \"authorized_subnet\", \"scheduled_scan\"],\n  \"iocs_found\": [],\n  \"summary\": \"Known authorized vulnerability scanner (Nessus) triggered network scan alert. Source IP in scanner subnet. This is a routine weekly security assessment.\",\n  \"escalation_notes\": \"\"\n}\n```"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_case", "args": {"case_id": "CASE-EVAL-003"}},
+              {"name": "list_case_alerts", "args": {"case_id": "CASE-EVAL-003"}},
+              {"name": "get_ioc_match", "args": {"value": "10.0.50.100"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-003", "comment": "Triage assessment — known false positive"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "ransomware_critical_endpoint",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "## TASK\n\nTriage the following Chronicle SecOps case following your instructions.\n\n**Case ID:** CASE-EVAL-004\n**Client ID:** eval-client\n**Alert Type:** RANSOMWARE\n**Initial Severity:** CRITICAL\n**Autonomous Mode:** True\n\nAdditional context:\nEndpoint finance-server-03 detected rapid file encryption activity. Multiple .locked file extensions observed. Ransom note README_DECRYPT.txt dropped in several directories. Process conhost.exe spawned by unknown parent. Shadow copies deleted via vssadmin.exe. Network shares accessed from this host."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "```json\n{\n  \"case_id\": \"CASE-EVAL-004\",\n  \"alert_type\": \"RANSOMWARE\",\n  \"verdict\": \"MALICIOUS\",\n  \"priority\": \"CRITICAL\",\n  \"confidence_score\": 0.97,\n  \"recommended_action\": \"CONTAIN\",\n  \"key_indicators\": [\"file_encryption_activity\", \"ransom_note_dropped\", \"shadow_copy_deletion\", \"network_share_access\"],\n  \"iocs_found\": [{\"type\": \"HOST\", \"value\": \"finance-server-03\"}],\n  \"summary\": \"Active ransomware execution on finance-server-03. File encryption in progress, ransom note dropped, shadow copies deleted. Network share access indicates potential lateral spread.\",\n  \"escalation_notes\": \"IMMEDIATE isolation required. Activate ransomware IRP. Check network shares for spread. Preserve forensic evidence before remediation.\"\n}\n```"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_case", "args": {"case_id": "CASE-EVAL-004"}},
+              {"name": "list_case_alerts", "args": {"case_id": "CASE-EVAL-004"}},
+              {"name": "translate_udm_query", "args": {"natural_language_query": "file modifications and process executions on finance-server-03 in the last hour"}},
+              {"name": "udm_search", "args": {"query": "principal.hostname = \"finance-server-03\" AND (metadata.event_type = \"FILE_MODIFICATION\" OR metadata.event_type = \"PROCESS_LAUNCH\")"}},
+              {"name": "summarize_entity", "args": {"entity_value": "finance-server-03"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-004", "comment": "CRITICAL: Active ransomware — triage assessment"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "brute_force_authentication",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "## TASK\n\nTriage the following Chronicle SecOps case following your instructions.\n\n**Case ID:** CASE-EVAL-005\n**Client ID:** eval-client\n**Alert Type:** BRUTE_FORCE\n**Initial Severity:** MEDIUM\n**Autonomous Mode:** True\n\nAdditional context:\n527 failed login attempts detected from IP 198.51.100.25 against the VPN gateway in the last 30 minutes. Multiple usernames targeted including admin, svc-backup, and cfo@company.com. Source IP geolocates to a known bulletproof hosting provider."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "```json\n{\n  \"case_id\": \"CASE-EVAL-005\",\n  \"alert_type\": \"BRUTE_FORCE\",\n  \"verdict\": \"MALICIOUS\",\n  \"priority\": \"HIGH\",\n  \"confidence_score\": 0.88,\n  \"recommended_action\": \"CONTAIN\",\n  \"key_indicators\": [\"527_failed_logins_30min\", \"multiple_usernames_targeted\", \"bulletproof_hosting_source\", \"vpn_gateway_targeted\"],\n  \"iocs_found\": [{\"type\": \"IP\", \"value\": \"198.51.100.25\"}],\n  \"summary\": \"Active brute force attack against VPN gateway. 527 failed attempts from bulletproof hosting IP. Multiple high-value accounts targeted including admin and C-level.\",\n  \"escalation_notes\": \"Block source IP at perimeter. Check if any targeted accounts were successfully compromised. Review VPN logs for successful authentications from this IP.\"\n}\n```"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_case", "args": {"case_id": "CASE-EVAL-005"}},
+              {"name": "list_case_alerts", "args": {"case_id": "CASE-EVAL-005"}},
+              {"name": "translate_udm_query", "args": {"natural_language_query": "failed login attempts from IP 198.51.100.25 in the last hour"}},
+              {"name": "udm_search", "args": {"query": "metadata.event_type = \"USER_LOGIN\" AND security_result.action = \"BLOCK\" AND principal.ip = \"198.51.100.25\""}},
+              {"name": "get_ioc_match", "args": {"value": "198.51.100.25"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-005", "comment": "Triage assessment — brute force attack"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "lateral_movement_rdp",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "## TASK\n\nTriage the following Chronicle SecOps case following your instructions.\n\n**Case ID:** CASE-EVAL-006\n**Client ID:** eval-client\n**Alert Type:** LATERAL_MOVEMENT\n**Initial Severity:** HIGH\n**Autonomous Mode:** True\n\nAdditional context:\nService account svc-deploy initiated RDP sessions to 12 different hosts within 15 minutes. This account normally only connects to 2 deployment servers. Destinations include domain controllers DC-01 and DC-02, file server FS-CORP, and multiple workstations. Source is jump server JUMP-01."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "```json\n{\n  \"case_id\": \"CASE-EVAL-006\",\n  \"alert_type\": \"LATERAL_MOVEMENT\",\n  \"verdict\": \"MALICIOUS\",\n  \"priority\": \"HIGH\",\n  \"confidence_score\": 0.88,\n  \"recommended_action\": \"CONTAIN\",\n  \"key_indicators\": [\"anomalous_rdp_pattern\", \"service_account_abuse\", \"domain_controller_access\", \"12_hosts_15_minutes\"],\n  \"iocs_found\": [{\"type\": \"USER\", \"value\": \"svc-deploy\"}, {\"type\": \"HOST\", \"value\": \"JUMP-01\"}, {\"type\": \"HOST\", \"value\": \"DC-01\"}, {\"type\": \"HOST\", \"value\": \"DC-02\"}],\n  \"summary\": \"Service account svc-deploy showing anomalous lateral movement via RDP. 12 hosts accessed in 15 minutes including domain controllers. Normal baseline is 2 servers. Indicates possible credential compromise.\",\n  \"escalation_notes\": \"Isolate JUMP-01. Disable svc-deploy account. Check for Golden Ticket / Pass-the-Hash. Audit all accessed hosts for persistence.\"\n}\n```"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_case", "args": {"case_id": "CASE-EVAL-006"}},
+              {"name": "list_case_alerts", "args": {"case_id": "CASE-EVAL-006"}},
+              {"name": "translate_udm_query", "args": {"natural_language_query": "RDP connections from service account svc-deploy in the last hour"}},
+              {"name": "udm_search", "args": {"query": "principal.user.userid = \"svc-deploy\" AND metadata.event_type = \"NETWORK_CONNECTION\" AND target.port = 3389"}},
+              {"name": "summarize_entity", "args": {"entity_value": "svc-deploy", "entity_type": "USER"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-006", "comment": "Triage assessment — lateral movement"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "data_exfiltration_cloud_upload",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "## TASK\n\nTriage the following Chronicle SecOps case following your instructions.\n\n**Case ID:** CASE-EVAL-007\n**Client ID:** eval-client\n**Alert Type:** DATA_EXFILTRATION\n**Initial Severity:** HIGH\n**Autonomous Mode:** True\n\nAdditional context:\nDLP alert triggered: 2.3 GB uploaded to mega.nz from workstation HR-WS-04 at 2:47 AM local time. User account is hr.analyst@company.com. Files include salary_data_2026.xlsx, employee_ssn_backup.csv, and performance_reviews_q1.zip. The upload occurred outside business hours."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "```json\n{\n  \"case_id\": \"CASE-EVAL-007\",\n  \"alert_type\": \"DATA_EXFILTRATION\",\n  \"verdict\": \"SUSPICIOUS\",\n  \"priority\": \"HIGH\",\n  \"confidence_score\": 0.78,\n  \"recommended_action\": \"ESCALATE_T2\",\n  \"key_indicators\": [\"large_upload_2.3GB\", \"sensitive_PII_data\", \"cloud_storage_mega.nz\", \"after_hours_activity\", \"hr_sensitive_files\"],\n  \"iocs_found\": [{\"type\": \"DOMAIN\", \"value\": \"mega.nz\"}, {\"type\": \"USER\", \"value\": \"hr.analyst@company.com\"}, {\"type\": \"HOST\", \"value\": \"HR-WS-04\"}],\n  \"summary\": \"2.3 GB of sensitive HR data (SSNs, salary, reviews) uploaded to mega.nz at 2:47 AM from HR workstation. Could be insider threat or compromised account. PII exposure risk.\",\n  \"escalation_notes\": \"Requires T2 investigation: verify with user if upload was authorized. Coordinate with HR/Legal for insider threat assessment. Check account for compromise indicators.\"\n}\n```"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_case", "args": {"case_id": "CASE-EVAL-007"}},
+              {"name": "list_case_alerts", "args": {"case_id": "CASE-EVAL-007"}},
+              {"name": "translate_udm_query", "args": {"natural_language_query": "network uploads from HR-WS-04 to external destinations in the last 24 hours"}},
+              {"name": "udm_search", "args": {"query": "principal.hostname = \"HR-WS-04\" AND target.hostname = \"mega.nz\" AND network.sent_bytes > 1000000"}},
+              {"name": "summarize_entity", "args": {"entity_value": "hr.analyst@company.com", "entity_type": "USER"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-007", "comment": "Triage assessment — data exfiltration"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "dns_tunneling_detection",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "## TASK\n\nTriage the following Chronicle SecOps case following your instructions.\n\n**Case ID:** CASE-EVAL-008\n**Client ID:** eval-client\n**Alert Type:** DNS_ANOMALY\n**Initial Severity:** MEDIUM\n**Autonomous Mode:** True\n\nAdditional context:\nEndpoint DEV-WS-12 generating high volume of DNS TXT queries to subdomains of xk7f9.duckdns.org. Average query length is 180+ characters with high entropy in subdomain labels. 4,200 queries in the last hour. The domain was registered 3 days ago."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "```json\n{\n  \"case_id\": \"CASE-EVAL-008\",\n  \"alert_type\": \"DNS_ANOMALY\",\n  \"verdict\": \"SUSPICIOUS\",\n  \"priority\": \"MEDIUM\",\n  \"confidence_score\": 0.72,\n  \"recommended_action\": \"ESCALATE_T2\",\n  \"key_indicators\": [\"high_entropy_dns_queries\", \"txt_record_abuse\", \"duckdns_dynamic_domain\", \"4200_queries_per_hour\", \"newly_registered_domain\"],\n  \"iocs_found\": [{\"type\": \"DOMAIN\", \"value\": \"xk7f9.duckdns.org\"}, {\"type\": \"HOST\", \"value\": \"DEV-WS-12\"}],\n  \"summary\": \"Possible DNS tunneling from DEV-WS-12. High-entropy TXT queries to newly registered DuckDNS domain. 4,200 queries/hour with 180+ char subdomain labels consistent with DNS exfiltration or C2.\",\n  \"escalation_notes\": \"Investigate DEV-WS-12 for malware. Block xk7f9.duckdns.org at DNS. Analyze query payloads for data exfiltration patterns.\"\n}\n```"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_case", "args": {"case_id": "CASE-EVAL-008"}},
+              {"name": "list_case_alerts", "args": {"case_id": "CASE-EVAL-008"}},
+              {"name": "translate_udm_query", "args": {"natural_language_query": "DNS queries from DEV-WS-12 to duckdns.org in the last 2 hours"}},
+              {"name": "udm_search", "args": {"query": "principal.hostname = \"DEV-WS-12\" AND metadata.event_type = \"NETWORK_DNS\" AND network.dns.questions.name = /.*duckdns\\.org/"}},
+              {"name": "get_ioc_match", "args": {"value": "xk7f9.duckdns.org"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-008", "comment": "Triage assessment — DNS tunneling"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "cryptomining_process",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "## TASK\n\nTriage the following Chronicle SecOps case following your instructions.\n\n**Case ID:** CASE-EVAL-009\n**Client ID:** eval-client\n**Alert Type:** CRYPTOMINING\n**Initial Severity:** MEDIUM\n**Autonomous Mode:** True\n\nAdditional context:\nProcess xmrig.exe detected on cloud VM web-server-prod-02. CPU utilization spiked to 98%. Outbound connection to stratum+tcp://pool.minexmr.com:4444. The process was spawned by a cron job added 2 hours ago under the www-data user."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "```json\n{\n  \"case_id\": \"CASE-EVAL-009\",\n  \"alert_type\": \"CRYPTOMINING\",\n  \"verdict\": \"MALICIOUS\",\n  \"priority\": \"MEDIUM\",\n  \"confidence_score\": 0.93,\n  \"recommended_action\": \"CONTAIN\",\n  \"key_indicators\": [\"xmrig_binary\", \"mining_pool_connection\", \"98_percent_cpu\", \"unauthorized_cron_job\", \"production_server\"],\n  \"iocs_found\": [{\"type\": \"HOST\", \"value\": \"web-server-prod-02\"}, {\"type\": \"DOMAIN\", \"value\": \"pool.minexmr.com\"}],\n  \"summary\": \"Confirmed cryptomining on production web server. xmrig.exe connecting to mining pool via unauthorized cron job under www-data. Indicates server compromise — likely via web application vulnerability.\",\n  \"escalation_notes\": \"Kill mining process. Remove unauthorized cron. Investigate web-server-prod-02 for initial access vector. Check for additional persistence.\"\n}\n```"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_case", "args": {"case_id": "CASE-EVAL-009"}},
+              {"name": "list_case_alerts", "args": {"case_id": "CASE-EVAL-009"}},
+              {"name": "translate_udm_query", "args": {"natural_language_query": "process launches and network connections from web-server-prod-02 in the last 4 hours"}},
+              {"name": "udm_search", "args": {"query": "principal.hostname = \"web-server-prod-02\" AND (target.process.file.full_path = /.*xmrig.*/ OR target.hostname = \"pool.minexmr.com\")"}},
+              {"name": "get_ioc_match", "args": {"value": "pool.minexmr.com"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-009", "comment": "Triage assessment — cryptomining confirmed"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "c2_beaconing_periodic",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "## TASK\n\nTriage the following Chronicle SecOps case following your instructions.\n\n**Case ID:** CASE-EVAL-010\n**Client ID:** eval-client\n**Alert Type:** C2_COMMUNICATION\n**Initial Severity:** HIGH\n**Autonomous Mode:** True\n\nAdditional context:\nEndpoint SALES-WS-09 making periodic HTTPS connections to 185.220.101.42 every 60±5 seconds on port 8443. Beacon pattern detected over 6 hours. The destination IP has no reverse DNS and is hosted at a VPS provider in Eastern Europe. Small data transfer per connection (2-5 KB)."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "```json\n{\n  \"case_id\": \"CASE-EVAL-010\",\n  \"alert_type\": \"C2_COMMUNICATION\",\n  \"verdict\": \"MALICIOUS\",\n  \"priority\": \"HIGH\",\n  \"confidence_score\": 0.90,\n  \"recommended_action\": \"CONTAIN\",\n  \"key_indicators\": [\"periodic_beacon_60s\", \"non_standard_port_8443\", \"no_reverse_dns\", \"eastern_europe_vps\", \"6_hour_duration\"],\n  \"iocs_found\": [{\"type\": \"IP\", \"value\": \"185.220.101.42\"}, {\"type\": \"HOST\", \"value\": \"SALES-WS-09\"}],\n  \"summary\": \"C2 beacon detected. SALES-WS-09 beaconing to Eastern European VPS every 60 seconds on port 8443 for 6 hours. Pattern, timing regularity, and small payload size are classic C2 indicators.\",\n  \"escalation_notes\": \"Isolate SALES-WS-09 immediately. Block IP 185.220.101.42. Collect memory dump before remediation. Check for data staging or exfiltration.\"\n}\n```"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_case", "args": {"case_id": "CASE-EVAL-010"}},
+              {"name": "list_case_alerts", "args": {"case_id": "CASE-EVAL-010"}},
+              {"name": "translate_udm_query", "args": {"natural_language_query": "network connections from SALES-WS-09 to IP 185.220.101.42"}},
+              {"name": "udm_search", "args": {"query": "principal.hostname = \"SALES-WS-09\" AND target.ip = \"185.220.101.42\""}},
+              {"name": "get_ioc_match", "args": {"value": "185.220.101.42"}},
+              {"name": "summarize_entity", "args": {"entity_value": "SALES-WS-09"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-010", "comment": "Triage assessment — C2 beaconing confirmed"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "impossible_travel_login",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "## TASK\n\nTriage the following Chronicle SecOps case following your instructions.\n\n**Case ID:** CASE-EVAL-011\n**Client ID:** eval-client\n**Alert Type:** IMPOSSIBLE_TRAVEL\n**Initial Severity:** MEDIUM\n**Autonomous Mode:** True\n\nAdditional context:\nUser cfo@company.com authenticated to Microsoft 365 from Chicago, USA at 14:23 UTC and from Lagos, Nigeria at 14:31 UTC — 8 minutes apart. The Chicago session used a known corporate device. The Lagos session used an unregistered device with a different user-agent string (Linux/Chrome vs Windows/Edge)."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "```json\n{\n  \"case_id\": \"CASE-EVAL-011\",\n  \"alert_type\": \"IMPOSSIBLE_TRAVEL\",\n  \"verdict\": \"SUSPICIOUS\",\n  \"priority\": \"HIGH\",\n  \"confidence_score\": 0.82,\n  \"recommended_action\": \"ESCALATE_T2\",\n  \"key_indicators\": [\"impossible_travel_8_minutes\", \"different_device\", \"different_user_agent\", \"high_value_account_cfo\", \"unregistered_device\"],\n  \"iocs_found\": [{\"type\": \"USER\", \"value\": \"cfo@company.com\"}, {\"type\": \"IP\", \"value\": \"Lagos source IP\"}],\n  \"summary\": \"Impossible travel detected for CFO account. Chicago to Lagos in 8 minutes with different devices and user-agents. High probability of credential compromise for C-level account.\",\n  \"escalation_notes\": \"Verify with CFO if VPN or travel is involved. Different device + user-agent strongly suggests compromise. Consider precautionary session revocation.\"\n}\n```"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_case", "args": {"case_id": "CASE-EVAL-011"}},
+              {"name": "list_case_alerts", "args": {"case_id": "CASE-EVAL-011"}},
+              {"name": "translate_udm_query", "args": {"natural_language_query": "login events for user cfo@company.com in the last 24 hours"}},
+              {"name": "udm_search", "args": {"query": "target.user.email_addresses = \"cfo@company.com\" AND metadata.event_type = \"USER_LOGIN\""}},
+              {"name": "summarize_entity", "args": {"entity_value": "cfo@company.com", "entity_type": "USER"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-011", "comment": "Triage assessment — impossible travel"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "privilege_escalation_service_account",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "## TASK\n\nTriage the following Chronicle SecOps case following your instructions.\n\n**Case ID:** CASE-EVAL-012\n**Client ID:** eval-client\n**Alert Type:** PRIVILEGE_ESCALATION\n**Initial Severity:** HIGH\n**Autonomous Mode:** True\n\nAdditional context:\nUser intern.jones@company.com was added to the Domain Admins group at 03:15 UTC. The change was made from workstation INTERN-WS-01. No change request ticket exists in ServiceNow. The user's normal group memberships are: Interns, ReadOnly-FileShare. The modification was performed using net group command via cmd.exe."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "```json\n{\n  \"case_id\": \"CASE-EVAL-012\",\n  \"alert_type\": \"PRIVILEGE_ESCALATION\",\n  \"verdict\": \"SUSPICIOUS\",\n  \"priority\": \"HIGH\",\n  \"confidence_score\": 0.85,\n  \"recommended_action\": \"ESCALATE_T2\",\n  \"key_indicators\": [\"domain_admins_addition\", \"intern_account\", \"no_change_ticket\", \"after_hours_03:15\", \"cmd_net_group\"],\n  \"iocs_found\": [{\"type\": \"USER\", \"value\": \"intern.jones@company.com\"}, {\"type\": \"HOST\", \"value\": \"INTERN-WS-01\"}],\n  \"summary\": \"Unauthorized privilege escalation. Intern account added to Domain Admins at 3:15 AM via command line with no change ticket. Strong indicator of compromised credentials or insider threat.\",\n  \"escalation_notes\": \"Remove from Domain Admins immediately. Disable account pending investigation. Check INTERN-WS-01 for malware. Audit all actions taken with elevated privileges.\"\n}\n```"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_case", "args": {"case_id": "CASE-EVAL-012"}},
+              {"name": "list_case_alerts", "args": {"case_id": "CASE-EVAL-012"}},
+              {"name": "translate_udm_query", "args": {"natural_language_query": "group membership changes for intern.jones@company.com"}},
+              {"name": "udm_search", "args": {"query": "target.user.email_addresses = \"intern.jones@company.com\" AND metadata.event_type = \"GROUP_MODIFICATION\""}},
+              {"name": "summarize_entity", "args": {"entity_value": "intern.jones@company.com", "entity_type": "USER"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-012", "comment": "Triage assessment — privilege escalation"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "persistence_scheduled_task",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "## TASK\n\nTriage the following Chronicle SecOps case following your instructions.\n\n**Case ID:** CASE-EVAL-013\n**Client ID:** eval-client\n**Alert Type:** PERSISTENCE\n**Initial Severity:** MEDIUM\n**Autonomous Mode:** True\n\nAdditional context:\nNew scheduled task 'WindowsUpdateCheck' created on endpoint ACCT-WS-03 via schtasks.exe. Task runs every 15 minutes and executes a PowerShell script from C:\\ProgramData\\tmp\\update.ps1. The script was not present 24 hours ago. Task was created by the local SYSTEM account."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "```json\n{\n  \"case_id\": \"CASE-EVAL-013\",\n  \"alert_type\": \"PERSISTENCE\",\n  \"verdict\": \"SUSPICIOUS\",\n  \"priority\": \"MEDIUM\",\n  \"confidence_score\": 0.70,\n  \"recommended_action\": \"ESCALATE_T2\",\n  \"key_indicators\": [\"new_scheduled_task\", \"powershell_payload\", \"programdata_tmp_path\", \"15_minute_interval\", \"system_account_creation\"],\n  \"iocs_found\": [{\"type\": \"HOST\", \"value\": \"ACCT-WS-03\"}],\n  \"summary\": \"Suspicious persistence mechanism. New scheduled task running PowerShell from temp directory every 15 minutes. Script appeared in last 24 hours. Mimics Windows Update naming to evade detection.\",\n  \"escalation_notes\": \"Analyze update.ps1 content. Check ACCT-WS-03 for initial access indicators. Review how SYSTEM created this task — likely exploit or malware.\"\n}\n```"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_case", "args": {"case_id": "CASE-EVAL-013"}},
+              {"name": "list_case_alerts", "args": {"case_id": "CASE-EVAL-013"}},
+              {"name": "translate_udm_query", "args": {"natural_language_query": "scheduled task creation and PowerShell executions on ACCT-WS-03"}},
+              {"name": "udm_search", "args": {"query": "principal.hostname = \"ACCT-WS-03\" AND (target.process.file.full_path = /.*schtasks.*/ OR target.process.file.full_path = /.*powershell.*/)"}},
+              {"name": "summarize_entity", "args": {"entity_value": "ACCT-WS-03"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-013", "comment": "Triage assessment — persistence mechanism"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "insider_threat_mass_file_access",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "## TASK\n\nTriage the following Chronicle SecOps case following your instructions.\n\n**Case ID:** CASE-EVAL-014\n**Client ID:** eval-client\n**Alert Type:** INSIDER_THREAT\n**Initial Severity:** MEDIUM\n**Autonomous Mode:** True\n\nAdditional context:\nUser departing.employee@company.com accessed 847 files on the engineering file share in the last 2 hours. Normal daily access for this user is ~30 files. The user submitted their resignation 5 days ago. Files include source code repositories, architecture documents, and client API keys. No file downloads detected yet but clipboard activity is elevated."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "```json\n{\n  \"case_id\": \"CASE-EVAL-014\",\n  \"alert_type\": \"INSIDER_THREAT\",\n  \"verdict\": \"SUSPICIOUS\",\n  \"priority\": \"HIGH\",\n  \"confidence_score\": 0.75,\n  \"recommended_action\": \"ESCALATE_T2\",\n  \"key_indicators\": [\"847_files_vs_30_baseline\", \"departing_employee\", \"source_code_access\", \"api_keys_access\", \"elevated_clipboard_activity\"],\n  \"iocs_found\": [{\"type\": \"USER\", \"value\": \"departing.employee@company.com\"}],\n  \"summary\": \"Departing employee accessed 28x their normal file volume including source code and API keys. Resignation submitted 5 days ago. Elevated clipboard activity suggests preparation for data theft. No confirmed exfiltration yet.\",\n  \"escalation_notes\": \"Coordinate with HR and Legal. Monitor for download/upload activity. Consider restricting file share access. Rotate accessed API keys as precaution.\"\n}\n```"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_case", "args": {"case_id": "CASE-EVAL-014"}},
+              {"name": "list_case_alerts", "args": {"case_id": "CASE-EVAL-014"}},
+              {"name": "translate_udm_query", "args": {"natural_language_query": "file access events by departing.employee@company.com in the last 24 hours"}},
+              {"name": "udm_search", "args": {"query": "principal.user.email_addresses = \"departing.employee@company.com\" AND metadata.event_type = \"FILE_READ\""}},
+              {"name": "summarize_entity", "args": {"entity_value": "departing.employee@company.com", "entity_type": "USER"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-014", "comment": "Triage assessment — insider threat"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "benign_windows_update_traffic",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "## TASK\n\nTriage the following Chronicle SecOps case following your instructions.\n\n**Case ID:** CASE-EVAL-015\n**Client ID:** eval-client\n**Alert Type:** SUSPICIOUS_OUTBOUND\n**Initial Severity:** LOW\n**Autonomous Mode:** True\n\nAdditional context:\nMultiple workstations generating high-volume HTTPS traffic to download.windowsupdate.com and delivery.mp.microsoft.com. Traffic spike correlates with Patch Tuesday (second Tuesday of month). All source endpoints are domain-joined corporate workstations running WSUS-managed updates."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "```json\n{\n  \"case_id\": \"CASE-EVAL-015\",\n  \"alert_type\": \"SUSPICIOUS_OUTBOUND\",\n  \"verdict\": \"BENIGN\",\n  \"priority\": \"INFORMATIVE\",\n  \"confidence_score\": 0.98,\n  \"recommended_action\": \"CLOSE_FP\",\n  \"key_indicators\": [\"microsoft_update_domains\", \"patch_tuesday_correlation\", \"wsus_managed\", \"domain_joined_endpoints\"],\n  \"iocs_found\": [],\n  \"summary\": \"Patch Tuesday Windows Update traffic. All traffic to legitimate Microsoft update infrastructure from WSUS-managed corporate endpoints. Expected behavior.\",\n  \"escalation_notes\": \"\"\n}\n```"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_case", "args": {"case_id": "CASE-EVAL-015"}},
+              {"name": "list_case_alerts", "args": {"case_id": "CASE-EVAL-015"}},
+              {"name": "get_ioc_match", "args": {"value": "download.windowsupdate.com"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-015", "comment": "Triage assessment — benign Windows Update traffic"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    }
+  ]
+}

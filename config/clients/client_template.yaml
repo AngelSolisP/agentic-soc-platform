@@ -1,0 +1,83 @@
+# ============================================================
+# Agentic SOC — Client Configuration Template
+#
+# Copy this file and rename to {client_id}.yaml
+# Register in Firestore using the onboarding script:
+#   python scripts/onboard_client.py --config config/clients/{client_id}.yaml
+# ============================================================
+
+# Unique identifier for this client (lowercase, hyphens OK)
+# Used in: MCP Gateway routing, Firestore document ID, Secret Manager keys
+client_id: "REPLACE_ME"
+
+# Human-readable display name
+display_name: "REPLACE_ME Company Name"
+
+# === GCP Configuration ===
+gcp_project_id: "REPLACE_ME_gcp_project"
+
+# Chronicle tenant UUID (found in Chronicle Settings → SIEM Settings)
+chronicle_customer_id: "REPLACE_ME_uuid"
+
+# Chronicle deployment region: us | eu | asia
+chronicle_region: "us"
+
+# Service Account email that the partner uses to access this client's Chronicle
+# The partner's SA must be granted roles in the CLIENT's GCP project:
+#   - roles/mcp.toolUser
+#   - roles/chronicle.admin
+#   - roles/chronicle.soarAdmin
+#   - roles/serviceusage.serviceUsageConsumer
+#   - roles/iam.serviceAccountTokenCreator
+service_account_email: "agentic-soc-REPLACE_ME@REPLACE_ME.iam.gserviceaccount.com"
+
+# SOAR Environment ID — required for multi-tenant SOAR isolation.
+# Found in Chronicle Settings → SOAR Settings → Environments
+# Each MSSP client should have a separate SOAR environment.
+soar_environment_id: ""
+
+# === Service Configuration ===
+
+# If true: agent can close FPs and add comments without HITL approval
+# If false: all non-read actions trigger HITL queue
+autonomous_mode: false
+
+# Enabled: if false, all requests for this client are blocked
+enabled: true
+
+# === Integrations ===
+# GTI enrichment (requires partner GTI license)
+# If true, Enrichment Agent queries GTI MCP for IoC reputation data
+gti_enabled: false
+
+# === Alert Routing ===
+# Override default runbook assignments per alert type
+alert_runbook_overrides: {}
+# Example:
+# alert_runbook_overrides:
+#   CUSTOM_ALERT_TYPE: tactical/custom_triage.md
+
+# === Notification Settings ===
+notifications:
+  # Slack webhook for HITL approval notifications
+  slack_webhook: ""
+  # Email for P1 escalations
+  escalation_email: ""
+  # PagerDuty service key for critical incidents
+  pagerduty_key: ""
+
+# === SLA Configuration ===
+sla:
+  # Time in minutes before PENDING approval is auto-escalated
+  hitl_timeout_minutes: 30
+  # Time in minutes for P1 case first response
+  p1_response_minutes: 15
+  # Time in minutes for P2 case first response
+  p2_response_minutes: 60
+
+# === Metadata ===
+metadata:
+  onboarded_at: ""        # ISO8601, set by onboarding script
+  onboarded_by: ""        # Analyst who ran the onboarding
+  contract_tier: "standard"  # standard | premium | enterprise
+  notes: ""

@@ -1,0 +1,244 @@
+{
+  "eval_set_id": "case_manager_evals",
+  "name": "Case Manager Agent Evaluations — 10 Case Lifecycle Scenarios",
+  "eval_cases": [
+    {
+      "eval_id": "close_false_positive_scanner",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "Manage Chronicle case based on the following analysis results:\n\n**Case ID:** CASE-EVAL-003\n**Client ID:** eval-client\n**Recommended Action:** CLOSE_FP\n\n**Triage Results:**\n{\"verdict\": \"BENIGN\", \"priority\": \"INFORMATIVE\", \"confidence_score\": 0.96, \"key_indicators\": [\"known_scanner\", \"authorized_subnet\"]}\n\n**Enrichment Results:**\n{\"threat_context\": {\"overall_threat_level\": \"LOW\"}, \"enrichments\": []}\n\nExecute the recommended action:\n- CLOSE_FP: Close as false positive with closure_details documentation"}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "Case CASE-EVAL-003 closed as false positive. Closure details: reason=NOT_MALICIOUS, root_cause=known vulnerability scanner from authorized subnet, documented in case comment."}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_case", "args": {"case_id": "CASE-EVAL-003"}},
+              {"name": "list_case_alerts", "args": {"case_id": "CASE-EVAL-003"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-003", "comment": "FP closure documentation"}},
+              {"name": "execute_bulk_close_case", "args": {"case_ids": ["CASE-EVAL-003"], "reason": "NOT_MALICIOUS"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "escalate_phishing_to_t2",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "Manage Chronicle case based on the following analysis results:\n\n**Case ID:** CASE-EVAL-001\n**Client ID:** eval-client\n**Recommended Action:** ESCALATE_T2\n\n**Triage Results:**\n{\"verdict\": \"MALICIOUS\", \"priority\": \"HIGH\", \"confidence_score\": 0.92, \"key_indicators\": [\"credential_harvesting\", \"malicious_ip\", \"user_credentials_submitted\"]}\n\n**Enrichment Results:**\n{\"threat_context\": {\"overall_threat_level\": \"CRITICAL\"}, \"enrichments\": [{\"ioc_value\": \"203.0.113.42\", \"gti_verdict\": \"MALICIOUS\", \"recommended_blocking\": true}]}\n\nExecute the recommended action:\n- ESCALATE_T2: Update priority and add escalation comment"}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "Case CASE-EVAL-001 escalated to Tier 2. Priority updated to CRITICAL. Detailed escalation comment added with triage findings, enrichment results, and recommended containment actions."}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_case", "args": {"case_id": "CASE-EVAL-001"}},
+              {"name": "list_case_alerts", "args": {"case_id": "CASE-EVAL-001"}},
+              {"name": "update_case", "args": {"case_id": "CASE-EVAL-001", "priority": "PRIORITY_CRITICAL"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-001", "comment": "T2 escalation"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "monitor_suspicious_powershell",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "Manage Chronicle case based on the following analysis results:\n\n**Case ID:** CASE-EVAL-002\n**Client ID:** eval-client\n**Recommended Action:** MONITOR\n\n**Triage Results:**\n{\"verdict\": \"SUSPICIOUS\", \"priority\": \"MEDIUM\", \"confidence_score\": 0.65, \"key_indicators\": [\"encoded_powershell\", \"no_lateral_movement\"]}\n\n**Enrichment Results:**\n{\"threat_context\": {\"overall_threat_level\": \"MEDIUM\"}, \"enrichments\": []}\n\nExecute the recommended action:\n- MONITOR: Add findings comment, keep case open at current priority"}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "Case CASE-EVAL-002 set to MONITOR. Findings documented in case comment. Case remains open at MEDIUM priority for continued observation."}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_case", "args": {"case_id": "CASE-EVAL-002"}},
+              {"name": "list_case_alerts", "args": {"case_id": "CASE-EVAL-002"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-002", "comment": "monitoring findings"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "escalate_critical_ransomware",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "Manage Chronicle case based on the following analysis results:\n\n**Case ID:** CASE-EVAL-004\n**Client ID:** eval-client\n**Recommended Action:** CONTAIN\n\n**Triage Results:**\n{\"verdict\": \"MALICIOUS\", \"priority\": \"CRITICAL\", \"confidence_score\": 0.97, \"key_indicators\": [\"file_encryption_activity\", \"ransom_note_dropped\", \"shadow_copy_deletion\", \"network_share_access\"]}\n\n**Enrichment Results:**\n{\"threat_context\": {\"overall_threat_level\": \"CRITICAL\", \"malware_families\": [\"LockBit 3.0\"]}, \"enrichments\": [{\"ioc_value\": \"e5f6a7b8c9d0123456789abcdef01234\", \"gti_verdict\": \"MALICIOUS\", \"recommended_blocking\": true}]}\n\nExecute the recommended action:\n- CONTAIN requires routing to Response Agent. Update priority and document for response pipeline."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "Case CASE-EVAL-004 updated to CRITICAL priority. Ransomware IRP activated. Containment request documented for Response Agent pipeline. LockBit 3.0 identified — immediate endpoint isolation recommended."}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_case", "args": {"case_id": "CASE-EVAL-004"}},
+              {"name": "list_case_alerts", "args": {"case_id": "CASE-EVAL-004"}},
+              {"name": "update_case", "args": {"case_id": "CASE-EVAL-004", "priority": "PRIORITY_CRITICAL"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-004", "comment": "CRITICAL — ransomware containment required"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "close_inconclusive_no_impact",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "Manage Chronicle case based on the following analysis results:\n\n**Case ID:** CASE-EVAL-017\n**Client ID:** eval-client\n**Recommended Action:** CLOSE_FP\n\n**Triage Results:**\n{\"verdict\": \"BENIGN\", \"priority\": \"INFORMATIVE\", \"confidence_score\": 0.90, \"key_indicators\": [\"test_environment\", \"non_production_network\"]}\n\n**Enrichment Results:**\n{\"threat_context\": {\"overall_threat_level\": \"LOW\"}, \"enrichments\": [{\"ioc_value\": \"10.200.50.5\", \"gti_verdict\": \"UNKNOWN\", \"recommended_blocking\": false}]}\n\nExecute the recommended action:\n- Alert from test/dev environment. Close with INCONCLUSIVE reason since IoC verdict is UNKNOWN but environment is non-production."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "Case CASE-EVAL-017 closed. Closure reason: INCONCLUSIVE — activity in non-production test environment with no business impact. Documented IoC findings for threat intel history."}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_case", "args": {"case_id": "CASE-EVAL-017"}},
+              {"name": "list_case_alerts", "args": {"case_id": "CASE-EVAL-017"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-017", "comment": "closure — non-production environment"}},
+              {"name": "execute_bulk_close_case", "args": {"case_ids": ["CASE-EVAL-017"], "reason": "INCONCLUSIVE"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "bulk_close_scanner_alerts",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "Manage Chronicle cases based on the following analysis results:\n\n**Case IDs:** CASE-EVAL-018, CASE-EVAL-019, CASE-EVAL-020, CASE-EVAL-021\n**Client ID:** eval-client\n**Recommended Action:** CLOSE_FP (bulk)\n\n**Triage Results (all identical):**\n{\"verdict\": \"BENIGN\", \"priority\": \"INFORMATIVE\", \"confidence_score\": 0.97, \"key_indicators\": [\"qualys_scanner\", \"scheduled_scan_window\", \"authorized_ip_range\"]}\n\n**Enrichment Results:**\n{\"threat_context\": {\"overall_threat_level\": \"LOW\"}, \"enrichments\": []}\n\nExecute the recommended action:\n- Bulk close all 4 cases as false positives from authorized Qualys vulnerability scanner."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "4 cases bulk closed as false positives. All cases from authorized Qualys scanner during scheduled scan window. Documented in each case comment."}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_case", "args": {"case_id": "CASE-EVAL-018"}},
+              {"name": "list_case_alerts", "args": {"case_id": "CASE-EVAL-018"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-018", "comment": "Bulk FP closure — Qualys scanner"}},
+              {"name": "execute_bulk_close_case", "args": {"case_ids": ["CASE-EVAL-018", "CASE-EVAL-019", "CASE-EVAL-020", "CASE-EVAL-021"], "reason": "NOT_MALICIOUS"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "escalate_data_exfiltration",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "Manage Chronicle case based on the following analysis results:\n\n**Case ID:** CASE-EVAL-007\n**Client ID:** eval-client\n**Recommended Action:** ESCALATE_T2\n\n**Triage Results:**\n{\"verdict\": \"SUSPICIOUS\", \"priority\": \"HIGH\", \"confidence_score\": 0.78, \"key_indicators\": [\"large_upload_2.3GB\", \"sensitive_PII_data\", \"after_hours_activity\"]}\n\n**Enrichment Results:**\n{\"threat_context\": {\"overall_threat_level\": \"MEDIUM\"}, \"enrichments\": [{\"ioc_value\": \"departing.employee@company.com\", \"gti_verdict\": \"UNKNOWN\"}]}\n\nExecute the recommended action:\n- ESCALATE_T2: Potential insider threat / data exfiltration. Requires human investigation."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "Case CASE-EVAL-007 escalated to Tier 2. Priority updated to HIGH. Escalation notes include: departing employee context, PII exposure risk, coordinate with HR/Legal."}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_case", "args": {"case_id": "CASE-EVAL-007"}},
+              {"name": "list_case_alerts", "args": {"case_id": "CASE-EVAL-007"}},
+              {"name": "update_case", "args": {"case_id": "CASE-EVAL-007", "priority": "PRIORITY_HIGH"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-007", "comment": "T2 escalation — insider threat"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "monitor_dns_tunneling_suspicious",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "Manage Chronicle case based on the following analysis results:\n\n**Case ID:** CASE-EVAL-008\n**Client ID:** eval-client\n**Recommended Action:** MONITOR\n\n**Triage Results:**\n{\"verdict\": \"SUSPICIOUS\", \"priority\": \"MEDIUM\", \"confidence_score\": 0.72, \"key_indicators\": [\"high_entropy_dns_queries\", \"duckdns_dynamic_domain\", \"4200_queries_per_hour\"]}\n\n**Enrichment Results:**\n{\"threat_context\": {\"overall_threat_level\": \"MEDIUM\"}, \"enrichments\": [{\"ioc_value\": \"xk7f9.duckdns.org\", \"gti_verdict\": \"SUSPICIOUS\"}]}\n\nExecute the recommended action:\n- MONITOR: DNS tunneling not confirmed. Add monitoring tag and document findings."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "Case CASE-EVAL-008 set to MONITOR. DNS tunneling suspicion documented with query volume metrics and DuckDNS domain details. Case remains open at MEDIUM priority for continued DNS monitoring."}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_case", "args": {"case_id": "CASE-EVAL-008"}},
+              {"name": "list_case_alerts", "args": {"case_id": "CASE-EVAL-008"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-008", "comment": "monitoring — DNS tunneling suspicion"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "close_maintenance_window_activity",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "Manage Chronicle case based on the following analysis results:\n\n**Case ID:** CASE-EVAL-022\n**Client ID:** eval-client\n**Recommended Action:** CLOSE_FP\n\n**Triage Results:**\n{\"verdict\": \"BENIGN\", \"priority\": \"INFORMATIVE\", \"confidence_score\": 0.94, \"key_indicators\": [\"planned_maintenance_window\", \"authorized_change_ticket_CHG-4521\", \"known_sysadmin\"]}\n\n**Enrichment Results:**\n{\"threat_context\": {\"overall_threat_level\": \"LOW\"}, \"enrichments\": []}\n\nExecute the recommended action:\n- CLOSE_FP: Activity during scheduled maintenance window with approved change ticket."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "Case CASE-EVAL-022 closed. Closure reason: MAINTENANCE — activity correlated with change ticket CHG-4521 during planned maintenance window by authorized sysadmin."}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_case", "args": {"case_id": "CASE-EVAL-022"}},
+              {"name": "list_case_alerts", "args": {"case_id": "CASE-EVAL-022"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-022", "comment": "closure — maintenance window"}},
+              {"name": "execute_bulk_close_case", "args": {"case_ids": ["CASE-EVAL-022"], "reason": "MAINTENANCE"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "update_priority_downgrade",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "Manage Chronicle case based on the following analysis results:\n\n**Case ID:** CASE-EVAL-023\n**Client ID:** eval-client\n**Recommended Action:** MONITOR\n\n**Triage Results:**\n{\"verdict\": \"SUSPICIOUS\", \"priority\": \"LOW\", \"confidence_score\": 0.55, \"key_indicators\": [\"single_failed_login\", \"known_user\", \"corporate_vpn\"]}\n\n**Enrichment Results:**\n{\"threat_context\": {\"overall_threat_level\": \"LOW\"}, \"enrichments\": [{\"ioc_value\": \"10.0.1.50\", \"gti_verdict\": \"UNKNOWN\", \"recommended_blocking\": false}]}\n\nContext: Case was initially opened at HIGH priority by automated rule but triage determined LOW risk.\n\nExecute the recommended action:\n- MONITOR with priority downgrade from HIGH to LOW based on triage findings."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "Case CASE-EVAL-023 priority downgraded from HIGH to LOW based on triage findings. Single failed login from known user on corporate VPN — no malicious indicators. Case remains open for monitoring."}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_case", "args": {"case_id": "CASE-EVAL-023"}},
+              {"name": "list_case_alerts", "args": {"case_id": "CASE-EVAL-023"}},
+              {"name": "update_case", "args": {"case_id": "CASE-EVAL-023", "priority": "PRIORITY_LOW"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-023", "comment": "priority downgrade — low risk"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    }
+  ]
+}

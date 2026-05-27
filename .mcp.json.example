@@ -1,0 +1,36 @@
+{
+  "mcpServers": {
+    "secops": {
+      "type": "stdio",
+      "command": "/path/to/uv",
+      "args": [
+        "--directory",
+        "/path/to/agentic-soc/mcp-security/server/secops",
+        "run",
+        "python",
+        "-m",
+        "secops_mcp.server"
+      ],
+      "env": {
+        "CHRONICLE_PROJECT_ID": "your-chronicle-gcp-project",
+        "CHRONICLE_CUSTOMER_ID": "your-chronicle-customer-uuid",
+        "CHRONICLE_REGION": "us"
+      }
+    },
+    "gti": {
+      "type": "stdio",
+      "command": "/path/to/uv",
+      "args": [
+        "--directory",
+        "/path/to/agentic-soc/mcp-security/server/gti",
+        "run",
+        "python",
+        "-m",
+        "gti_mcp.server"
+      ],
+      "env": {
+        "VT_APIKEY": "your-virustotal-api-key"
+      }
+    }
+  }
+}

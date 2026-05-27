@@ -1,0 +1,10 @@
+# Copy to terraform.tfvars and fill in real values
+
+partner_project_id  = "your-project-id"
+region              = "us-central1"
+environment         = "staging"
+billing_account_id  = "XXXXXX-XXXXXX-XXXXXX"
+budget_alert_emails = ["your-email@company.com"]
+
+mcp_gateway_image = "us-central1-docker.pkg.dev/YOUR_PROJECT/agentic-soc/mcp-gateway:latest"
+hitl_backend_image = "us-central1-docker.pkg.dev/YOUR_PROJECT/agentic-soc/hitl-backend:latest"

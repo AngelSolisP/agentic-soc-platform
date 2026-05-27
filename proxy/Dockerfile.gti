@@ -1,0 +1,28 @@
+# gti-mcp server for Google Threat Intelligence
+# Build from project root: docker build -f proxy/Dockerfile.gti -t gti-mcp .
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install gti-mcp + uvicorn
+COPY mcp-security/server/gti/ ./gti/
+RUN pip install --no-cache-dir ./gti/ uvicorn[standard]
+
+# Entrypoint: streamable HTTP transport (POST /mcp — no SSE handshake needed)
+# Disable DNS rebinding protection (default only allows localhost, blocks Cloud Run hosts)
+RUN printf '%s\n' \
+  'from gti_mcp.server import server' \
+  'from mcp.server.transport_security import TransportSecuritySettings' \
+  'server.settings.transport_security = TransportSecuritySettings(enable_dns_rebinding_protection=False)' \
+  'app = server.streamable_http_app()' \
+  > /app/asgi.py
+
+# Non-root user
+RUN adduser --disabled-password --gecos "" appuser && chown -R appuser:appuser /app
+USER appuser
+
+ENV STATELESS=1
+ENV PORT=8080
+EXPOSE 8080
+
+CMD ["uvicorn", "asgi:app", "--host", "0.0.0.0", "--port", "8080"]

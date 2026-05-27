@@ -1,0 +1,68 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment & secrets — NEVER commit these
+.env
+*.pem
+*.key
+*-sa-key.json
+credentials.json
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+.terraform.lock.hcl
+*.tfplan
+plan.out
+
+# Claude Code local settings
+.claude/
+
+# Cloned external repos
+mcp-security
+
+# Extras: client data, internal docs, personal files, gemini config
+extras/
+
+# Local MCP config (real credentials) — use .mcp.json.example as template
+.mcp.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs
+*.log
+.superpowers/
+
+# Frontend build artifacts
+node_modules/
+workbench/frontend/dist/
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts

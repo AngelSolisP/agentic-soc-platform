@@ -1,0 +1,244 @@
+# Cloud Build CI/CD Pipeline — Agentic SOC
+#
+# Trigger: Push to master branch or manual trigger.
+#
+# IMPORTANT: Configure trigger with includedFiles filter to avoid
+# building on docs-only or config-only changes:
+#   includedFiles:
+#     - "agents/**"
+#     - "proxy/**"
+#     - "a2a_gateway/**"
+#     - "workbench/**"
+#     # ui/** removed — HITL Dashboard replaced by Workbench
+#     - "observability/**"
+#     - "requirements.txt"
+#     - "cloudbuild.yaml"
+#     - "**/*.py"
+#     - "**/Dockerfile"
+#   ignoredFiles:
+#     - "docs/**"
+#     - "*.md"
+#     - "context.txt"
+#     - "config/clients/**"
+#     - "runbooks/**"
+#     - "evals/**/*.json"
+#
+# Pipeline:
+#   1. Run tests + Tier 1 evals (combined — single pip install)
+#   2. Build Docker images (MCP Gateway + A2A Gateway + SOC Workbench)
+#   3. Push to Artifact Registry
+#   4. Deploy to Cloud Run
+#   5. Deploy to Vertex AI Agent Engine (conditional)
+#   6. Smoke tests (service health verification)
+#
+# Required substitutions (set in trigger or --substitutions):
+#   _REGION:                    GCP region (default: us-central1)
+#   _ENVIRONMENT:               dev | staging | prod (default: dev)
+#   _DEPLOY_AGENT_ENGINE:       true | false (default: false)
+#   _AGENT_ENGINE_RESOURCE_ID:  existing resource ID (for updates, optional)
+#   _MCP_GATEWAY_URL:           MCP Gateway Cloud Run URL (required if deploying Agent Engine)
+#
+# Required IAM for Cloud Build SA:
+#   - roles/run.admin
+#   - roles/iam.serviceAccountUser
+#   - roles/artifactregistry.writer
+#   - roles/logging.logWriter
+#   - roles/aiplatform.user (for Agent Engine deployment)
+
+substitutions:
+  _REGION: us-central1
+  _ENVIRONMENT: dev
+  _AR_REPO: ${_REGION}-docker.pkg.dev/${PROJECT_ID}/agentic-soc
+  _DEPLOY_AGENT_ENGINE: 'false'
+  _AGENT_ENGINE_RESOURCE_ID: ''
+  _MCP_GATEWAY_URL: ''
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: E2_MEDIUM
+
+steps:
+  # ── Step 0: Install dependencies, run tests + Tier 1 evals ──────────────
+  # Combined into one step to avoid double pip install (~2 min saved)
+  - id: test
+    name: python:3.11-slim
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        pip install --quiet -r requirements.txt
+        pip install --quiet pytest pytest-asyncio pytest-mock
+        echo "=== Running unit + integration tests ==="
+        python -m pytest tests/ -m "not live and not eval" -v --tb=short --junitxml=test-results.xml
+        echo "=== Running Tier 1 evals ==="
+        python -m pytest tests/evals/ -m mock -v --tb=short --junitxml=eval-results.xml
+    waitFor: ['-']
+
+  # ── Step 2a: Build MCP Gateway image ──────────────────────────────────
+  - id: build-gateway
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -f
+      - proxy/Dockerfile
+      - -t
+      - ${_AR_REPO}/mcp-gateway:${SHORT_SHA}
+      - -t
+      - ${_AR_REPO}/mcp-gateway:latest
+      - .
+    waitFor: ['test']
+
+  # ── Step 2b: Build A2A Gateway image ──────────────────────────────────
+  - id: build-a2a
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -f
+      - a2a_gateway/Dockerfile
+      - -t
+      - ${_AR_REPO}/a2a-gateway:${SHORT_SHA}
+      - -t
+      - ${_AR_REPO}/a2a-gateway:latest
+      - .
+    waitFor: ['test']
+
+  # ── Step 2c: Build SOC Workbench image ────────────────────────────────
+  - id: build-workbench
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -f
+      - workbench/Dockerfile
+      - -t
+      - ${_AR_REPO}/workbench:${SHORT_SHA}
+      - -t
+      - ${_AR_REPO}/workbench:latest
+      - .
+    waitFor: ['test']
+
+  # ── Step 3a: Push MCP Gateway image ──────────────────────────────────
+  - id: push-gateway
+    name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - --all-tags
+      - ${_AR_REPO}/mcp-gateway
+    waitFor: ['build-gateway']
+
+  # ── Step 3b: Push A2A Gateway image ──────────────────────────────────
+  - id: push-a2a
+    name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - --all-tags
+      - ${_AR_REPO}/a2a-gateway
+    waitFor: ['build-a2a']
+
+  # ── Step 3c: Push SOC Workbench image ──────────────────────────────────
+  - id: push-workbench
+    name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - --all-tags
+      - ${_AR_REPO}/workbench
+    waitFor: ['build-workbench']
+
+  # ── Step 4a: Deploy MCP Gateway to Cloud Run ─────────────────────────
+  - id: deploy-gateway
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - agentic-soc-mcp-gateway-${_ENVIRONMENT}
+      - --image=${_AR_REPO}/mcp-gateway:${SHORT_SHA}
+      - --region=${_REGION}
+      - --platform=managed
+      - --quiet
+      - --no-allow-unauthenticated
+    waitFor: ['push-gateway']
+
+  # ── Step 4b: Deploy A2A Gateway to Cloud Run ──────────────────────────
+  - id: deploy-a2a
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - agentic-soc-a2a-gateway-${_ENVIRONMENT}
+      - --image=${_AR_REPO}/a2a-gateway:${SHORT_SHA}
+      - --region=${_REGION}
+      - --platform=managed
+      - --quiet
+      - --no-allow-unauthenticated
+    waitFor: ['push-a2a']
+
+  # ── Step 4c: Deploy SOC Workbench to Cloud Run ──────────────────────────
+  # Workbench uses --allow-unauthenticated because it handles its own auth
+  # (Google Sign-In + JWT + Firestore). Without this, each deploy removes
+  # the allUsers invoker binding and causes 403 Forbidden in the browser.
+  - id: deploy-workbench
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - agentic-soc-workbench-${_ENVIRONMENT}
+      - --image=${_AR_REPO}/workbench:${SHORT_SHA}
+      - --region=${_REGION}
+      - --platform=managed
+      - --quiet
+      - --allow-unauthenticated
+    waitFor: ['push-workbench']
+
+  # ── Step 5: Deploy to Vertex AI Agent Engine (conditional) ─────────────
+  - id: deploy-agent-engine
+    name: python:3.11-slim
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        if [ "${_DEPLOY_AGENT_ENGINE}" != "true" ]; then
+          echo "Skipping Agent Engine deploy (_DEPLOY_AGENT_ENGINE != true)"
+          exit 0
+        fi
+        pip install --quiet -r requirements.txt
+        if [ -n "${_AGENT_ENGINE_RESOURCE_ID}" ]; then
+          python scripts/deploy_agent.py \
+            --project ${PROJECT_ID} \
+            --region ${_REGION} \
+            --gateway-url ${_MCP_GATEWAY_URL} \
+            --update \
+            --resource-id ${_AGENT_ENGINE_RESOURCE_ID}
+        else
+          python scripts/deploy_agent.py \
+            --project ${PROJECT_ID} \
+            --region ${_REGION} \
+            --gateway-url ${_MCP_GATEWAY_URL}
+        fi
+    waitFor: ['test', 'deploy-gateway', 'deploy-a2a', 'deploy-workbench']
+
+  # ── Step 6: Smoke test — verify Cloud Run services are healthy ────────
+  - id: smoke-test
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        for SVC in mcp-gateway a2a-gateway workbench; do
+          SVC_NAME="agentic-soc-$${SVC}-${_ENVIRONMENT}"
+          echo "Checking $${SVC_NAME}..."
+          READY=$(gcloud run services describe $${SVC_NAME} \
+            --region=${_REGION} --format='value(status.conditions[0].status)' 2>&1)
+          URL=$(gcloud run services describe $${SVC_NAME} \
+            --region=${_REGION} --format='value(status.url)' 2>&1)
+          echo "  Ready: $$READY | URL: $$URL"
+          if [ "$$READY" != "True" ]; then
+            echo "FAIL: $${SVC_NAME} not ready"
+            exit 1
+          fi
+        done
+        echo "All services healthy."
+    waitFor: ['deploy-gateway', 'deploy-a2a', 'deploy-workbench', 'deploy-agent-engine']
+
+timeout: 1200s  # 20 minutes max

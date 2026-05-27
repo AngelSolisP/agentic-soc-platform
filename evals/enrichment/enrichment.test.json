@@ -1,0 +1,304 @@
+{
+  "eval_set_id": "enrichment_evals",
+  "name": "Enrichment Agent Evaluations — 12 IoC Enrichment Scenarios",
+  "eval_cases": [
+    {
+      "eval_id": "malicious_ip_c2_infrastructure",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "## TASK\n\nEnrich the following indicators from Chronicle case CASE-EVAL-001 following your instructions.\n\n**Case ID:** CASE-EVAL-001\n**Client ID:** eval-client\n**IoCs to enrich:**\n- IP: 203.0.113.42\n\n**Alert context:**\nPhishing alert. User clicked link pointing to this IP. Possible C2 infrastructure."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "Enrichment complete for CASE-EVAL-001.\n\n```json\n{\n  \"enrichments\": [\n    {\n      \"ioc_type\": \"IP\",\n      \"ioc_value\": \"203.0.113.42\",\n      \"gti_verdict\": \"MALICIOUS\",\n      \"gti_score\": 92,\n      \"gti_categories\": [\"command_and_control\", \"phishing\"],\n      \"malware_families\": [\"Emotet\"],\n      \"mitre_techniques\": [\"T1071.001\", \"T1566.002\"],\n      \"historical_activity\": {\"first_seen\": \"2026-02-15T00:00:00Z\", \"last_seen\": \"2026-03-27T10:30:00Z\", \"internal_hits\": 15},\n      \"related_iocs\": [\"login-secure.example.com\"],\n      \"context_summary\": \"IP 203.0.113.42 is confirmed malicious C2 infrastructure associated with Emotet campaigns. Active in phishing and credential harvesting operations.\",\n      \"recommended_blocking\": true\n    }\n  ],\n  \"threat_context\": {\n    \"overall_threat_level\": \"CRITICAL\",\n    \"threat_actors\": [\"TA505\"],\n    \"malware_families\": [\"Emotet\"],\n    \"mitre_techniques\": [\"T1071.001\", \"T1566.002\"],\n    \"enrichment_completeness\": 0.95\n  }\n}\n```"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_ip_address_report", "args": {"ip_address": "203.0.113.42"}},
+              {"name": "get_entities_related_to_an_ip_address", "args": {"ip_address": "203.0.113.42"}},
+              {"name": "get_ioc_match", "args": {"value": "203.0.113.42"}},
+              {"name": "search_entity", "args": {"entity_value": "203.0.113.42", "entity_type": "IP"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-001", "comment": "enrichment results"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "phishing_domain_newly_registered",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "## TASK\n\nEnrich the following indicators from Chronicle case CASE-EVAL-002 following your instructions.\n\n**Case ID:** CASE-EVAL-002\n**Client ID:** eval-client\n**IoCs to enrich:**\n- DOMAIN: login-secure.example.com\n\n**Alert context:**\nPhishing domain used in credential harvesting campaign. Newly registered domain mimicking corporate login portal."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "```json\n{\n  \"enrichments\": [\n    {\n      \"ioc_type\": \"DOMAIN\",\n      \"ioc_value\": \"login-secure.example.com\",\n      \"gti_verdict\": \"MALICIOUS\",\n      \"gti_score\": 88,\n      \"gti_categories\": [\"phishing\", \"credential_harvesting\"],\n      \"malware_families\": [],\n      \"mitre_techniques\": [\"T1566.002\", \"T1078\"],\n      \"historical_activity\": {\"first_seen\": \"2026-03-24T00:00:00Z\", \"last_seen\": \"2026-03-27T08:00:00Z\", \"internal_hits\": 3},\n      \"related_iocs\": [\"203.0.113.42\"],\n      \"context_summary\": \"Newly registered domain used for credential harvesting. Resolves to known malicious IP. Active phishing campaign targeting corporate users.\",\n      \"recommended_blocking\": true\n    }\n  ],\n  \"threat_context\": {\n    \"overall_threat_level\": \"HIGH\",\n    \"threat_actors\": [],\n    \"malware_families\": [],\n    \"mitre_techniques\": [\"T1566.002\", \"T1078\"],\n    \"enrichment_completeness\": 0.90\n  }\n}\n```"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_domain_report", "args": {"domain": "login-secure.example.com"}},
+              {"name": "get_entities_related_to_a_domain", "args": {"domain": "login-secure.example.com"}},
+              {"name": "get_ioc_match", "args": {"value": "login-secure.example.com"}},
+              {"name": "search_entity", "args": {"entity_value": "login-secure.example.com"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-002", "comment": "enrichment results"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "multi_ioc_campaign_correlation",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "## TASK\n\nEnrich the following indicators from Chronicle case CASE-EVAL-003 following your instructions.\n\n**Case ID:** CASE-EVAL-003\n**Client ID:** eval-client\n**IoCs to enrich:**\n- IP: 203.0.113.42\n- DOMAIN: login-secure.example.com\n- HASH: a1b2c3d4e5f6789012345678abcdef01\n\n**Alert context:**\nMulti-stage attack: phishing email delivered malware payload, which connects to C2 infrastructure. All three IoCs linked to same campaign."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "All 3 IoCs enriched for CASE-EVAL-003.\n\n```json\n{\n  \"enrichments\": [\n    {\n      \"ioc_type\": \"IP\",\n      \"ioc_value\": \"203.0.113.42\",\n      \"gti_verdict\": \"MALICIOUS\",\n      \"gti_score\": 92,\n      \"gti_categories\": [\"command_and_control\"],\n      \"malware_families\": [\"Emotet\"],\n      \"mitre_techniques\": [\"T1071.001\"],\n      \"historical_activity\": {\"first_seen\": \"2026-02-15T00:00:00Z\", \"last_seen\": \"2026-03-27T10:30:00Z\", \"internal_hits\": 15},\n      \"related_iocs\": [\"login-secure.example.com\", \"a1b2c3d4e5f6789012345678abcdef01\"],\n      \"context_summary\": \"C2 server for Emotet campaign\",\n      \"recommended_blocking\": true\n    },\n    {\n      \"ioc_type\": \"DOMAIN\",\n      \"ioc_value\": \"login-secure.example.com\",\n      \"gti_verdict\": \"MALICIOUS\",\n      \"gti_score\": 88,\n      \"gti_categories\": [\"phishing\"],\n      \"malware_families\": [\"Emotet\"],\n      \"mitre_techniques\": [\"T1566.002\"],\n      \"historical_activity\": {\"first_seen\": \"2026-03-24T00:00:00Z\", \"last_seen\": \"2026-03-27T08:00:00Z\", \"internal_hits\": 3},\n      \"related_iocs\": [\"203.0.113.42\"],\n      \"context_summary\": \"Phishing delivery domain for Emotet payload\",\n      \"recommended_blocking\": true\n    },\n    {\n      \"ioc_type\": \"HASH\",\n      \"ioc_value\": \"a1b2c3d4e5f6789012345678abcdef01\",\n      \"gti_verdict\": \"MALICIOUS\",\n      \"gti_score\": 95,\n      \"gti_categories\": [\"trojan\", \"dropper\"],\n      \"malware_families\": [\"Emotet\"],\n      \"mitre_techniques\": [\"T1059.001\", \"T1055\"],\n      \"historical_activity\": {\"first_seen\": \"2026-03-20T00:00:00Z\", \"last_seen\": \"2026-03-27T09:00:00Z\", \"internal_hits\": 1},\n      \"related_iocs\": [\"203.0.113.42\", \"login-secure.example.com\"],\n      \"context_summary\": \"Emotet dropper delivered via phishing\",\n      \"recommended_blocking\": true\n    }\n  ],\n  \"threat_context\": {\n    \"overall_threat_level\": \"CRITICAL\",\n    \"threat_actors\": [\"TA505\"],\n    \"malware_families\": [\"Emotet\"],\n    \"mitre_techniques\": [\"T1071.001\", \"T1566.002\", \"T1059.001\", \"T1055\"],\n    \"enrichment_completeness\": 0.95\n  }\n}\n```"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_ip_address_report", "args": {"ip_address": "203.0.113.42"}},
+              {"name": "get_domain_report", "args": {"domain": "login-secure.example.com"}},
+              {"name": "get_file_report", "args": {"hash": "a1b2c3d4e5f6789012345678abcdef01"}},
+              {"name": "get_file_behavior_summary", "args": {"hash": "a1b2c3d4e5f6789012345678abcdef01"}},
+              {"name": "get_entities_related_to_a_file", "args": {"hash": "a1b2c3d4e5f6789012345678abcdef01"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-003", "comment": "enrichment results — multi-IoC campaign"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "ransomware_hash_lockbit",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "## TASK\n\nEnrich the following indicators from Chronicle case CASE-EVAL-004 following your instructions.\n\n**Case ID:** CASE-EVAL-004\n**Client ID:** eval-client\n**IoCs to enrich:**\n- HASH: e5f6a7b8c9d0123456789abcdef01234\n\n**Alert context:**\nRansomware alert on finance-server-03. Binary detected with .locked file extension encryption behavior. Need malware family identification and behavior analysis."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "```json\n{\n  \"enrichments\": [\n    {\n      \"ioc_type\": \"HASH\",\n      \"ioc_value\": \"e5f6a7b8c9d0123456789abcdef01234\",\n      \"gti_verdict\": \"MALICIOUS\",\n      \"gti_score\": 98,\n      \"gti_categories\": [\"ransomware\", \"trojan\"],\n      \"malware_families\": [\"LockBit 3.0\"],\n      \"mitre_techniques\": [\"T1486\", \"T1490\", \"T1083\", \"T1135\"],\n      \"historical_activity\": {\"first_seen\": \"2026-03-01T00:00:00Z\", \"last_seen\": \"2026-03-27T06:00:00Z\", \"internal_hits\": 1},\n      \"related_iocs\": [\"lockbit-ransom.onion\"],\n      \"context_summary\": \"LockBit 3.0 ransomware binary. Encrypts files, deletes shadow copies, enumerates network shares for lateral spread. Associated with LockBit RaaS affiliate program.\",\n      \"recommended_blocking\": true\n    }\n  ],\n  \"threat_context\": {\n    \"overall_threat_level\": \"CRITICAL\",\n    \"threat_actors\": [\"LockBit RaaS\"],\n    \"malware_families\": [\"LockBit 3.0\"],\n    \"mitre_techniques\": [\"T1486\", \"T1490\", \"T1083\", \"T1135\"],\n    \"enrichment_completeness\": 0.92\n  }\n}\n```"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_file_report", "args": {"hash": "e5f6a7b8c9d0123456789abcdef01234"}},
+              {"name": "get_file_behavior_summary", "args": {"hash": "e5f6a7b8c9d0123456789abcdef01234"}},
+              {"name": "get_entities_related_to_a_file", "args": {"hash": "e5f6a7b8c9d0123456789abcdef01234"}},
+              {"name": "get_ioc_match", "args": {"value": "e5f6a7b8c9d0123456789abcdef01234"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-004", "comment": "enrichment results — ransomware hash"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "tor_exit_node_ip",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "## TASK\n\nEnrich the following indicators from Chronicle case CASE-EVAL-011 following your instructions.\n\n**Case ID:** CASE-EVAL-011\n**Client ID:** eval-client\n**IoCs to enrich:**\n- IP: 185.220.101.42\n\n**Alert context:**\nImpossible travel alert. Authentication from this IP in Lagos, Nigeria. Need to determine if this is a Tor exit node or known proxy."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "```json\n{\n  \"enrichments\": [\n    {\n      \"ioc_type\": \"IP\",\n      \"ioc_value\": \"185.220.101.42\",\n      \"gti_verdict\": \"SUSPICIOUS\",\n      \"gti_score\": 65,\n      \"gti_categories\": [\"tor_exit_node\", \"anonymizer\"],\n      \"malware_families\": [],\n      \"mitre_techniques\": [\"T1090.003\"],\n      \"historical_activity\": {\"first_seen\": \"2025-06-01T00:00:00Z\", \"last_seen\": \"2026-03-27T14:31:00Z\", \"internal_hits\": 2},\n      \"related_iocs\": [],\n      \"context_summary\": \"Known Tor exit node. Used for anonymous access. Not inherently malicious but commonly used to obscure attacker origin. Two previous hits in internal logs.\",\n      \"recommended_blocking\": false\n    }\n  ],\n  \"threat_context\": {\n    \"overall_threat_level\": \"MEDIUM\",\n    \"threat_actors\": [],\n    \"malware_families\": [],\n    \"mitre_techniques\": [\"T1090.003\"],\n    \"enrichment_completeness\": 0.80\n  }\n}\n```"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_ip_address_report", "args": {"ip_address": "185.220.101.42"}},
+              {"name": "get_entities_related_to_an_ip_address", "args": {"ip_address": "185.220.101.42"}},
+              {"name": "get_ioc_match", "args": {"value": "185.220.101.42"}},
+              {"name": "search_entity", "args": {"entity_value": "185.220.101.42", "entity_type": "IP"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-011", "comment": "enrichment results — Tor exit node"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "dga_domain_no_match",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "## TASK\n\nEnrich the following indicators from Chronicle case CASE-EVAL-008 following your instructions.\n\n**Case ID:** CASE-EVAL-008\n**Client ID:** eval-client\n**IoCs to enrich:**\n- DOMAIN: xk7f9.duckdns.org\n\n**Alert context:**\nDNS tunneling suspicion. High-entropy DNS queries to this DuckDNS domain. 4,200 TXT queries per hour from DEV-WS-12."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "```json\n{\n  \"enrichments\": [\n    {\n      \"ioc_type\": \"DOMAIN\",\n      \"ioc_value\": \"xk7f9.duckdns.org\",\n      \"gti_verdict\": \"SUSPICIOUS\",\n      \"gti_score\": 55,\n      \"gti_categories\": [\"dynamic_dns\", \"potentially_malicious\"],\n      \"malware_families\": [],\n      \"mitre_techniques\": [\"T1071.004\", \"T1568.002\"],\n      \"historical_activity\": {\"first_seen\": \"2026-03-24T00:00:00Z\", \"last_seen\": \"2026-03-27T10:00:00Z\", \"internal_hits\": 4200},\n      \"related_iocs\": [],\n      \"context_summary\": \"Newly registered DuckDNS domain with DGA-like characteristics. No confirmed malware association in GTI but dynamic DNS + high query volume + high entropy strongly suggests DNS tunneling or C2.\",\n      \"recommended_blocking\": false\n    }\n  ],\n  \"threat_context\": {\n    \"overall_threat_level\": \"MEDIUM\",\n    \"threat_actors\": [],\n    \"malware_families\": [],\n    \"mitre_techniques\": [\"T1071.004\", \"T1568.002\"],\n    \"enrichment_completeness\": 0.60\n  }\n}\n```"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_domain_report", "args": {"domain": "xk7f9.duckdns.org"}},
+              {"name": "get_entities_related_to_a_domain", "args": {"domain": "xk7f9.duckdns.org"}},
+              {"name": "get_ioc_match", "args": {"value": "xk7f9.duckdns.org"}},
+              {"name": "translate_udm_query", "args": {"natural_language_query": "DNS queries to xk7f9.duckdns.org in the last 24 hours"}},
+              {"name": "udm_search", "args": {"query": "network.dns.questions.name = /.*xk7f9\\.duckdns\\.org/ AND metadata.event_type = \"NETWORK_DNS\""}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-008", "comment": "enrichment results — DGA domain"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "benign_cdn_ip_cloudflare",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "## TASK\n\nEnrich the following indicators from Chronicle case CASE-EVAL-015 following your instructions.\n\n**Case ID:** CASE-EVAL-015\n**Client ID:** eval-client\n**IoCs to enrich:**\n- IP: 104.16.132.229\n\n**Alert context:**\nSuspicious outbound traffic alert. High-volume HTTPS connections to this IP from multiple workstations."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "```json\n{\n  \"enrichments\": [\n    {\n      \"ioc_type\": \"IP\",\n      \"ioc_value\": \"104.16.132.229\",\n      \"gti_verdict\": \"BENIGN\",\n      \"gti_score\": 5,\n      \"gti_categories\": [\"cdn\", \"hosting\"],\n      \"malware_families\": [],\n      \"mitre_techniques\": [],\n      \"historical_activity\": {\"first_seen\": \"2025-01-01T00:00:00Z\", \"last_seen\": \"2026-03-27T12:00:00Z\", \"internal_hits\": 50000},\n      \"related_iocs\": [],\n      \"context_summary\": \"Cloudflare CDN IP. Serves legitimate web content for millions of domains. High volume expected for corporate environments.\",\n      \"recommended_blocking\": false\n    }\n  ],\n  \"threat_context\": {\n    \"overall_threat_level\": \"LOW\",\n    \"threat_actors\": [],\n    \"malware_families\": [],\n    \"mitre_techniques\": [],\n    \"enrichment_completeness\": 0.95\n  }\n}\n```"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_ip_address_report", "args": {"ip_address": "104.16.132.229"}},
+              {"name": "get_ioc_match", "args": {"value": "104.16.132.229"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-015", "comment": "enrichment results — benign CDN IP"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "unknown_ip_no_gti_data",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "## TASK\n\nEnrich the following indicators from Chronicle case CASE-EVAL-010 following your instructions.\n\n**Case ID:** CASE-EVAL-010\n**Client ID:** eval-client\n**IoCs to enrich:**\n- IP: 192.0.2.99\n\n**Alert context:**\nC2 beaconing suspicion. Periodic connections to this IP. No prior threat intel available."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "```json\n{\n  \"enrichments\": [\n    {\n      \"ioc_type\": \"IP\",\n      \"ioc_value\": \"192.0.2.99\",\n      \"gti_verdict\": \"UNKNOWN\",\n      \"gti_categories\": [],\n      \"malware_families\": [],\n      \"mitre_techniques\": [],\n      \"historical_activity\": {\"first_seen\": \"\", \"last_seen\": \"\", \"internal_hits\": 0},\n      \"related_iocs\": [],\n      \"context_summary\": \"No GTI data available for this IP. No Chronicle IoC matches. No historical internal activity found. Cannot determine threat level from available data.\",\n      \"recommended_blocking\": false\n    }\n  ],\n  \"threat_context\": {\n    \"overall_threat_level\": \"UNKNOWN\",\n    \"threat_actors\": [],\n    \"malware_families\": [],\n    \"mitre_techniques\": [],\n    \"enrichment_completeness\": 0.25\n  }\n}\n```"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_ip_address_report", "args": {"ip_address": "192.0.2.99"}},
+              {"name": "get_ioc_match", "args": {"value": "192.0.2.99"}},
+              {"name": "search_entity", "args": {"entity_value": "192.0.2.99", "entity_type": "IP"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-010", "comment": "enrichment results — no data available"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "url_credential_harvest_page",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "## TASK\n\nEnrich the following indicators from Chronicle case CASE-EVAL-016 following your instructions.\n\n**Case ID:** CASE-EVAL-016\n**Client ID:** eval-client\n**IoCs to enrich:**\n- URL: https://login-secure.example.com/auth/microsoft365/verify\n\n**Alert context:**\nPhishing email contained this URL. Multiple users reported receiving the email. URL mimics Microsoft 365 login page."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "```json\n{\n  \"enrichments\": [\n    {\n      \"ioc_type\": \"URL\",\n      \"ioc_value\": \"https://login-secure.example.com/auth/microsoft365/verify\",\n      \"gti_verdict\": \"MALICIOUS\",\n      \"gti_score\": 90,\n      \"gti_categories\": [\"phishing\", \"credential_harvesting\", \"brand_impersonation\"],\n      \"malware_families\": [],\n      \"mitre_techniques\": [\"T1566.002\", \"T1078\"],\n      \"historical_activity\": {\"first_seen\": \"2026-03-26T00:00:00Z\", \"last_seen\": \"2026-03-27T09:00:00Z\", \"internal_hits\": 7},\n      \"related_iocs\": [\"login-secure.example.com\", \"203.0.113.42\"],\n      \"context_summary\": \"Active phishing URL mimicking Microsoft 365 login. 7 internal users accessed this URL. Part of credential harvesting campaign.\",\n      \"recommended_blocking\": true\n    }\n  ],\n  \"threat_context\": {\n    \"overall_threat_level\": \"HIGH\",\n    \"threat_actors\": [],\n    \"malware_families\": [],\n    \"mitre_techniques\": [\"T1566.002\", \"T1078\"],\n    \"enrichment_completeness\": 0.88\n  }\n}\n```"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_url_report", "args": {"url": "https://login-secure.example.com/auth/microsoft365/verify"}},
+              {"name": "get_domain_report", "args": {"domain": "login-secure.example.com"}},
+              {"name": "get_ioc_match", "args": {"value": "login-secure.example.com"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-016", "comment": "enrichment results — phishing URL"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "user_entity_chronicle_only",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "## TASK\n\nEnrich the following indicators from Chronicle case CASE-EVAL-014 following your instructions.\n\n**Case ID:** CASE-EVAL-014\n**Client ID:** eval-client\n**IoCs to enrich:**\n- USER: departing.employee@company.com\n\n**Alert context:**\nInsider threat alert. Departing employee accessed 847 files in 2 hours. Need entity behavior analysis from Chronicle."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "```json\n{\n  \"enrichments\": [\n    {\n      \"ioc_type\": \"USER\",\n      \"ioc_value\": \"departing.employee@company.com\",\n      \"gti_verdict\": \"UNKNOWN\",\n      \"gti_categories\": [],\n      \"malware_families\": [],\n      \"mitre_techniques\": [\"T1530\", \"T1074.001\"],\n      \"historical_activity\": {\"first_seen\": \"2025-06-01T00:00:00Z\", \"last_seen\": \"2026-03-27T16:00:00Z\", \"internal_hits\": 847},\n      \"related_iocs\": [],\n      \"context_summary\": \"User entity analysis from Chronicle. 847 file access events in 2 hours vs 30/day baseline. Access included source code, architecture docs, and API keys. Entity flagged for data staging behavior.\",\n      \"recommended_blocking\": false\n    }\n  ],\n  \"threat_context\": {\n    \"overall_threat_level\": \"MEDIUM\",\n    \"threat_actors\": [],\n    \"malware_families\": [],\n    \"mitre_techniques\": [\"T1530\", \"T1074.001\"],\n    \"enrichment_completeness\": 0.55,\n    \"note\": \"User entities cannot be enriched via GTI — results based on Chronicle SIEM data only\"\n  }\n}\n```"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "summarize_entity", "args": {"entity_value": "departing.employee@company.com", "entity_type": "USER"}},
+              {"name": "search_entity", "args": {"entity_value": "departing.employee@company.com", "entity_type": "USER"}},
+              {"name": "translate_udm_query", "args": {"natural_language_query": "file access events by departing.employee@company.com in the last 48 hours"}},
+              {"name": "udm_search", "args": {"query": "principal.user.email_addresses = \"departing.employee@company.com\" AND metadata.event_type = \"FILE_READ\""}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-014", "comment": "enrichment results — user entity"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "host_entity_chronicle_only",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "## TASK\n\nEnrich the following indicators from Chronicle case CASE-EVAL-009 following your instructions.\n\n**Case ID:** CASE-EVAL-009\n**Client ID:** eval-client\n**IoCs to enrich:**\n- HOST: web-server-prod-02\n\n**Alert context:**\nCryptomining detected on this host. Need full entity activity summary — process launches, network connections, user context."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "```json\n{\n  \"enrichments\": [\n    {\n      \"ioc_type\": \"HOST\",\n      \"ioc_value\": \"web-server-prod-02\",\n      \"gti_verdict\": \"UNKNOWN\",\n      \"gti_categories\": [],\n      \"malware_families\": [],\n      \"mitre_techniques\": [\"T1496\", \"T1059.004\"],\n      \"historical_activity\": {\"first_seen\": \"2025-01-15T00:00:00Z\", \"last_seen\": \"2026-03-27T12:00:00Z\", \"internal_hits\": 250},\n      \"related_iocs\": [\"pool.minexmr.com\"],\n      \"context_summary\": \"Production web server with xmrig process, unauthorized cron job, and connection to mining pool. Entity analysis shows anomalous process launches starting 2 hours ago under www-data user.\",\n      \"recommended_blocking\": false\n    }\n  ],\n  \"threat_context\": {\n    \"overall_threat_level\": \"MEDIUM\",\n    \"threat_actors\": [],\n    \"malware_families\": [],\n    \"mitre_techniques\": [\"T1496\", \"T1059.004\"],\n    \"enrichment_completeness\": 0.65,\n    \"note\": \"Host entities enriched via Chronicle SIEM only\"\n  }\n}\n```"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "summarize_entity", "args": {"entity_value": "web-server-prod-02"}},
+              {"name": "search_entity", "args": {"entity_value": "web-server-prod-02"}},
+              {"name": "translate_udm_query", "args": {"natural_language_query": "process launches and network connections on web-server-prod-02 in the last 4 hours"}},
+              {"name": "udm_search", "args": {"query": "principal.hostname = \"web-server-prod-02\" AND (metadata.event_type = \"PROCESS_LAUNCH\" OR metadata.event_type = \"NETWORK_CONNECTION\")"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-009", "comment": "enrichment results — host entity"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    },
+    {
+      "eval_id": "file_behavior_deep_analysis",
+      "conversation": [
+        {
+          "user_content": {
+            "role": "user",
+            "parts": [{"text": "## TASK\n\nEnrich the following indicators from Chronicle case CASE-EVAL-013 following your instructions.\n\n**Case ID:** CASE-EVAL-013\n**Client ID:** eval-client\n**IoCs to enrich:**\n- HASH: b4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9\n\n**Alert context:**\nSuspicious PowerShell script dropped at C:\\ProgramData\\tmp\\update.ps1 on ACCT-WS-03. Need full file behavior analysis and malware family identification."}]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [{"text": "```json\n{\n  \"enrichments\": [\n    {\n      \"ioc_type\": \"HASH\",\n      \"ioc_value\": \"b4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9\",\n      \"gti_verdict\": \"MALICIOUS\",\n      \"gti_score\": 85,\n      \"gti_categories\": [\"backdoor\", \"powershell_malware\"],\n      \"malware_families\": [\"PowerShell Empire\"],\n      \"mitre_techniques\": [\"T1059.001\", \"T1053.005\", \"T1547.001\", \"T1082\"],\n      \"historical_activity\": {\"first_seen\": \"2026-03-15T00:00:00Z\", \"last_seen\": \"2026-03-27T03:15:00Z\", \"internal_hits\": 1},\n      \"related_iocs\": [],\n      \"context_summary\": \"PowerShell Empire backdoor. Creates scheduled task for persistence, performs system reconnaissance, and establishes reverse shell. Behavior analysis shows obfuscated payload execution and registry key creation for persistence.\",\n      \"recommended_blocking\": true\n    }\n  ],\n  \"threat_context\": {\n    \"overall_threat_level\": \"HIGH\",\n    \"threat_actors\": [],\n    \"malware_families\": [\"PowerShell Empire\"],\n    \"mitre_techniques\": [\"T1059.001\", \"T1053.005\", \"T1547.001\", \"T1082\"],\n    \"enrichment_completeness\": 0.88\n  }\n}\n```"}]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {"name": "get_file_report", "args": {"hash": "b4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9"}},
+              {"name": "get_file_behavior_summary", "args": {"hash": "b4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9"}},
+              {"name": "get_entities_related_to_a_file", "args": {"hash": "b4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9"}},
+              {"name": "get_ioc_match", "args": {"value": "b4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9"}},
+              {"name": "create_case_comment", "args": {"case_id": "CASE-EVAL-013", "comment": "enrichment results — file behavior analysis"}}
+            ]
+          }
+        }
+      ],
+      "session_input": {"app_name": "agentic_soc", "user_id": "eval_runner", "state": {}}
+    }
+  ]
+}

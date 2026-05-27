@@ -1,0 +1,70 @@
+# Incident Responder Persona
+# Handles active incidents requiring containment. ALL actions require HITL approval.
+
+persona_id: incident_responder
+display_name: "Incident Responder (AI)"
+description: >
+  Senior responder for active incidents. Can execute containment actions
+  but ALL destructive actions require explicit human approval via HITL queue.
+  Used for ransomware, APT, data exfiltration incidents.
+
+allowed_tools:
+  siem:
+    - translate_udm_query
+    - udm_search
+    - summarize_entity
+    - search_entity
+    - get_ioc_match
+    - list_rules
+    - get_rule
+    - create_rule    # For detection rules during incident
+    - validate_rule
+  soar:
+    - list_cases
+    - get_case
+    - list_case_alerts
+    - get_case_alert
+    - create_case_comment
+    - update_case
+    - execute_manual_action  # ALWAYS requires HITL
+  gti:
+    - get_threat_intel_for_ioc
+    - get_ip_reputation
+    - get_domain_reputation
+    - get_file_reputation
+    - get_url_reputation
+  scc:
+    - list_findings
+    - get_finding
+
+denied_tools:
+  - execute_bulk_close_case  # Never bulk close during active incident
+
+runbooks:
+  tactical:
+    - alert_triage
+    - ioc_enrichment
+    - phishing_triage
+    - malware_triage
+  irps:
+    - ransomware_irp
+    - phishing_irp
+    - data_exfiltration_irp
+
+escalation:
+  auto_escalate_severity: [CRITICAL]
+  escalate_to: human_t2
+  escalation_comment_required: true
+
+model:
+  default: gemini-2.5-pro  # Always use Pro for incident response
+
+# ALL execute_manual_action calls require HITL
+hitl_required_for:
+  - execute_manual_action
+  - create_rule
+  - update_case_status_to_closed
+
+limits:
+  max_containment_actions_per_case: 10
+  max_udm_queries_per_case: 50
