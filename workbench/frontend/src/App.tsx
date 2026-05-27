@@ -132,8 +132,8 @@ export default function App() {
       }}>
         <Box
           component="img"
-          src="/logo-zevorus.png"
-          alt="Zevorus"
+          src="/logo.png"
+          alt="SOC Workbench"
           sx={{ height: 80, mb: 1 }}
         />
         <Typography variant="h4" fontWeight={700}>SOC Workbench</Typography>
@@ -163,8 +163,8 @@ export default function App() {
         <Toolbar>
           <Box
             component="img"
-            src="/logo-zevorus.png"
-            alt="Zevorus"
+            src="/logo.png"
+            alt="SOC Workbench"
             sx={{ height: 38, cursor: 'pointer', mr: 2 }}
             onClick={() => navigate('/dashboard')}
           />
@@ -266,7 +266,7 @@ export default function App() {
           ) : (
             <Route path="/admin/*" element={
               <Box sx={{ p: 4, textAlign: 'center' }}>
-                <Box component="img" src="/logo-zevorus.png" alt="Zevorus" sx={{ height: 48, mb: 2, opacity: 0.5 }} />
+                <Box component="img" src="/logo.png" alt="SOC Workbench" sx={{ height: 48, mb: 2, opacity: 0.5 }} />
                 <Typography variant="h6">Admin Access Required</Typography>
                 <Typography color="text.secondary">Your role does not have access to this section</Typography>
               </Box>

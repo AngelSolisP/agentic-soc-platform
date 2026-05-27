@@ -7,10 +7,10 @@ Also checks Cloud Logging for errors related to the pipeline run.
 
 Usage:
     # Monitor a specific case:
-    .venv/bin/python3 scripts/monitor_pipeline.py --case-id 2629 --client-id zevorus-nfr
+    .venv/bin/python3 scripts/monitor_pipeline.py --case-id 2629 --client-id demo-tenant
 
     # Monitor with Cloud Logging (requires gcloud auth):
-    .venv/bin/python3 scripts/monitor_pipeline.py --case-id 2629 --client-id zevorus-nfr --cloud-logs
+    .venv/bin/python3 scripts/monitor_pipeline.py --case-id 2629 --client-id demo-tenant --cloud-logs
 """
 
 import argparse
@@ -268,7 +268,7 @@ def monitor(case_id, client_id, cloud_logs=False):
 def main():
     parser = argparse.ArgumentParser(description="Monitor Agentic SOC pipeline in real-time")
     parser.add_argument("--case-id", required=True, help="Chronicle SOAR case ID")
-    parser.add_argument("--client-id", required=True, help="Client tenant ID (e.g. zevorus-nfr)")
+    parser.add_argument("--client-id", required=True, help="Client tenant ID (e.g. demo-tenant)")
     parser.add_argument("--cloud-logs", action="store_true", help="Also fetch Cloud Logging entries")
     parser.add_argument("--poll", type=float, default=2.0, help="Poll interval in seconds (default: 2)")
     args = parser.parse_args()

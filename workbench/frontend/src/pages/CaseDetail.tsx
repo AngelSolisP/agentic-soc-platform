@@ -158,7 +158,7 @@ export default function CaseDetail() {
               <Card sx={{ mb: 2, border: '1px solid rgba(44,113,201,0.2)', background: 'rgba(44,113,201,0.05)' }}>
                 <CardContent>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                    <Box component="img" src="/logo-zevorus.png" sx={{ height: 16, filter: 'grayscale(1) brightness(2)' }} />
+                    <Box component="img" src="/logo.png" sx={{ height: 16, filter: 'grayscale(1) brightness(2)' }} />
                     <Typography variant="subtitle2" sx={{ color: '#4cc9f0', fontWeight: 700 }}>Gemini TIN Investigation (SecLM)</Typography>
                   </Box>
                   <Box sx={{ display: 'flex', gap: 3, mb: 2 }}>

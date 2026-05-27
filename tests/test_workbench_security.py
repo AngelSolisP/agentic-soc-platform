@@ -24,7 +24,7 @@ class TestClientIdValidation:
     def test_valid_client_ids(self):
         from workbench.backend.security import validate_client_id
 
-        assert validate_client_id("zevorus-nfr") == "zevorus-nfr"
+        assert validate_client_id("demo-tenant") == "demo-tenant"
         assert validate_client_id("client-alpha") == "client-alpha"
         assert validate_client_id("abc") == "abc"
         assert validate_client_id("a" * 63) == "a" * 63
@@ -271,7 +271,7 @@ async def test_error_sanitization_case_not_found(secure_client):
     mock_mcp.call_tool = MagicMock(side_effect=MCPToolError("get_case", "HTTP 500: Connection to chronicle-mcp-us.googleapis.com failed"))
     secure_client._transport.app.state.mcp_client = mock_mcp
 
-    resp = await secure_client.get("/api/cases/999?client_id=zevorus-nfr")
+    resp = await secure_client.get("/api/cases/999?client_id=demo-tenant")
     assert resp.status_code == 404
     body = resp.json()
     # Must NOT contain internal MCP details

@@ -1,8 +1,8 @@
 import { createTheme } from '@mui/material/styles'
 
-// Zevorus brand palette — navy + gold
-// Extracted from zevorus.com design system
-const zevorus = {
+// Brand palette — navy + gold
+// Design system tokens
+const palette = {
   bg: '#061427',
   bgDeep: '#04101f',
   bgSoft: '#0b213c',
@@ -21,15 +21,15 @@ const zevorus = {
 }
 
 const palette = {
-  primary: { main: zevorus.gold, dark: zevorus.goldDark, light: zevorus.gold2, contrastText: '#081019' },
-  secondary: { main: zevorus.blue, dark: '#3d8bd4', light: '#9dd0ff', contrastText: '#04101f' },
+  primary: { main: palette.gold, dark: palette.goldDark, light: palette.gold2, contrastText: '#081019' },
+  secondary: { main: palette.blue, dark: '#3d8bd4', light: '#9dd0ff', contrastText: '#04101f' },
   error: { main: '#F28B82', dark: '#93000A', contrastText: '#690005' },
   warning: { main: '#FDD663', contrastText: '#3F2E00' },
   success: { main: '#81C995', contrastText: '#00391C' },
-  info: { main: zevorus.blue, contrastText: '#003063' },
-  background: { default: zevorus.bg, paper: zevorus.surface },
-  text: { primary: zevorus.text, secondary: zevorus.muted },
-  divider: zevorus.border,
+  info: { main: palette.blue, contrastText: '#003063' },
+  background: { default: palette.bg, paper: palette.surface },
+  text: { primary: palette.text, secondary: palette.muted },
+  divider: palette.border,
 }
 
 // SOC-specific tokens
@@ -39,7 +39,7 @@ export const socTokens = {
     high: '#FDD663',
     medium: '#FBBC04',
     low: '#81C995',
-    info: zevorus.blue,
+    info: palette.blue,
   },
   verdict: {
     malicious: '#F28B82',
@@ -48,11 +48,11 @@ export const socTokens = {
     inconclusive: '#DADCE0',
   },
   surface: {
-    container: zevorus.surface,
-    containerHigh: zevorus.surface2,
-    containerHighest: zevorus.surface3,
+    container: palette.surface,
+    containerHigh: palette.surface2,
+    containerHighest: palette.surface3,
   },
-  brand: zevorus,
+  brand: palette,
 }
 
 export const darkTheme = createTheme({
@@ -84,7 +84,7 @@ export const darkTheme = createTheme({
           background: `
             radial-gradient(circle at 15% 20%, rgba(44,113,201,0.20), transparent 28%),
             radial-gradient(circle at 85% 10%, rgba(201,178,126,0.12), transparent 24%),
-            linear-gradient(180deg, ${zevorus.bg} 0%, ${zevorus.bgDeep} 100%)`,
+            linear-gradient(180deg, ${palette.bg} 0%, ${palette.bgDeep} 100%)`,
           backgroundAttachment: 'fixed',
         },
       },
@@ -95,7 +95,7 @@ export const darkTheme = createTheme({
           backgroundImage: 'none',
           borderRadius: 20,
           background: `linear-gradient(180deg, rgba(16,41,71,0.92), rgba(10,28,49,0.92))`,
-          border: `1px solid ${zevorus.border}`,
+          border: `1px solid ${palette.border}`,
           boxShadow: '0 18px 60px rgba(0,0,0,0.25)',
           transition: 'transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease',
           '&:hover': {
@@ -121,19 +121,19 @@ export const darkTheme = createTheme({
           },
         },
         containedPrimary: {
-          background: `linear-gradient(180deg, ${zevorus.gold2}, ${zevorus.gold})`,
+          background: `linear-gradient(180deg, ${palette.gold2}, ${palette.gold})`,
           color: '#081019',
           boxShadow: '0 10px 24px rgba(201,178,126,0.24)',
           '&:hover': {
-            background: `linear-gradient(180deg, ${zevorus.gold2}, ${zevorus.goldDark})`,
+            background: `linear-gradient(180deg, ${palette.gold2}, ${palette.goldDark})`,
             boxShadow: '0 12px 28px rgba(201,178,126,0.32)',
           },
         },
         outlinedPrimary: {
-          borderColor: zevorus.borderStrong,
-          color: zevorus.text,
+          borderColor: palette.borderStrong,
+          color: palette.text,
           '&:hover': {
-            borderColor: zevorus.gold,
+            borderColor: palette.gold,
             backgroundColor: 'rgba(201,178,126,0.08)',
           },
         },
@@ -143,8 +143,8 @@ export const darkTheme = createTheme({
       styleOverrides: {
         paper: {
           borderRadius: 24,
-          background: `linear-gradient(180deg, ${zevorus.surface}, ${zevorus.bgSoft})`,
-          border: `1px solid ${zevorus.border}`,
+          background: `linear-gradient(180deg, ${palette.surface}, ${palette.bgSoft})`,
+          border: `1px solid ${palette.border}`,
         },
       },
     },
@@ -166,7 +166,7 @@ export const darkTheme = createTheme({
           textTransform: 'none',
           fontWeight: 500,
           '&.Mui-selected': {
-            color: zevorus.gold,
+            color: palette.gold,
           },
         },
       },
@@ -174,13 +174,13 @@ export const darkTheme = createTheme({
     MuiTabs: {
       styleOverrides: {
         indicator: {
-          backgroundColor: zevorus.gold,
+          backgroundColor: palette.gold,
         },
       },
     },
     MuiTableCell: {
       styleOverrides: {
-        root: { borderColor: zevorus.border },
+        root: { borderColor: palette.border },
       },
     },
     MuiPaper: {
@@ -196,14 +196,14 @@ export const darkTheme = createTheme({
           backgroundColor: 'rgba(201,178,126,0.12)',
         },
         bar: {
-          background: `linear-gradient(90deg, ${zevorus.gold}, ${zevorus.gold2})`,
+          background: `linear-gradient(90deg, ${palette.gold}, ${palette.gold2})`,
         },
       },
     },
     MuiCircularProgress: {
       styleOverrides: {
         root: {
-          color: zevorus.gold,
+          color: palette.gold,
         },
       },
     },

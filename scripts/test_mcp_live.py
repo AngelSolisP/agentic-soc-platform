@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Live MCP Tool Test Suite — Tests ALL Chronicle MCP tools against zevorus-nfr tenant.
+Live MCP Tool Test Suite — Tests ALL Chronicle MCP tools against demo-tenant tenant.
 
 Verifies that tool calls through the MCP Gateway return data aligned with
 what the ADK agents expect (matching agents/tool_catalog.py scoping).
@@ -30,7 +30,7 @@ GATEWAY_URL = os.environ.get(
     "https://your-mcp-gateway-url.run.app",
 )
 TOKEN = os.environ.get("MCP_TOKEN", "")
-CLIENT_ID = os.environ.get("MCP_CLIENT_ID", "zevorus-nfr")
+CLIENT_ID = os.environ.get("MCP_CLIENT_ID", "demo-tenant")
 MCP_ENDPOINT = f"{GATEWAY_URL}/mcp/{CLIENT_ID}"
 
 # ─── Counters ─────────────────────────────────────────────────────────────────

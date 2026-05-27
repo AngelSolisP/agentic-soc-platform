@@ -19,7 +19,7 @@ API_KEYS = [k.strip() for k in os.environ.get("API_KEYS", "").split(",") if k.st
 ANALYST_COLLECTION = "analyst_assignments"
 # Google Sign-In: OAuth Client ID for audience verification
 GOOGLE_OAUTH_CLIENT_ID = os.environ.get("GOOGLE_OAUTH_CLIENT_ID", "")
-# Domain restriction: comma-separated list of allowed email domains (e.g. "zevorus.com")
+# Domain restriction: comma-separated list of allowed email domains (e.g. "example.com")
 ALLOWED_DOMAINS = [d.strip() for d in os.environ.get("ALLOWED_DOMAINS", "").split(",") if d.strip()]
 
 _bearer_scheme = HTTPBearer(auto_error=False)

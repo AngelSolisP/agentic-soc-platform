@@ -66,7 +66,7 @@ def safe_agent_name(client_id: str) -> str:
     """Convert a client_id into a valid ADK agent name suffix.
 
     ADK LlmAgent names must be valid Python identifiers (letters, digits,
-    underscores only). Client IDs allow hyphens (e.g. 'zevorus-nfr'),
+    underscores only). Client IDs allow hyphens (e.g. 'demo-tenant'),
     so we replace non-identifier characters with underscores.
     """
     return re.sub(r"[^a-zA-Z0-9_]", "_", client_id)

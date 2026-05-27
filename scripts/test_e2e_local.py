@@ -59,7 +59,7 @@ def _prefetch_mcp_token(gateway_url: str) -> None:
 
 async def main():
     # ── Config ────────────────────────────────────────────────────────
-    client_id = os.environ.get("E2E_CLIENT_ID", "zevorus-nfr")
+    client_id = os.environ.get("E2E_CLIENT_ID", "demo-tenant")
     case_id = os.environ.get("E2E_CASE_ID", "2734")
     alert_type = os.environ.get("E2E_ALERT_TYPE", "MALWARE")
     severity = os.environ.get("E2E_SEVERITY", "HIGH")

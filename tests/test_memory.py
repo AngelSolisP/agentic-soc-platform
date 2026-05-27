@@ -296,14 +296,14 @@ class TestOrchestratorMemoryWiring:
         from agents.orchestrator.agent import AgenticSOCOrchestrator, APP_NAME
         orch = AgenticSOCOrchestrator(partner_project_id="test-project")
         await orch.process_alert(
-            client_id="zevorus-nfr", case_id="CASE-002", alert_type="MALWARE",
+            client_id="demo-tenant", case_id="CASE-002", alert_type="MALWARE",
         )
 
         # Verify session created with correct scope
         create_session_call = mock_session_svc.return_value.create_session
         call_kwargs = create_session_call.call_args.kwargs
         assert call_kwargs["app_name"] == APP_NAME
-        assert call_kwargs["user_id"] == "zevorus-nfr"
+        assert call_kwargs["user_id"] == "demo-tenant"
 
         # Verify Runner also uses APP_NAME
         runner_call_kwargs = mock_runner_cls.call_args.kwargs
