@@ -122,14 +122,14 @@ See `cloudbuild.yaml` for the staging deploy pipeline (tests → evals → Docke
 ## Status
 
 Implementation phases 0–8 complete:
-- ✅ Multi-tenant MCP Gateway (Cloud Run)
-- ✅ Four agents (Triage, Enrichment, Case Manager, Response) with ICM
-- ✅ HITL with code-enforced approval guard
-- ✅ A2A protocol surface
-- ✅ Memory Bank (per-client scope, 3 topics)
-- ✅ Cost protection (5 guards)
-- ✅ SOC Workbench (Google Sign-In, analyst assignment, audit log)
-- ✅ 407+ tests, 47 evals
+- Multi-tenant MCP Gateway (Cloud Run)
+- Four agents (Triage, Enrichment, Case Manager, Response) with ICM
+- HITL with code-enforced approval guard
+- A2A protocol surface
+- Memory Bank (per-client scope, 3 topics)
+- Cost protection (5 guards)
+- SOC Workbench (Google Sign-In, analyst assignment, audit log)
+- 407+ tests, 47 evals
 
 ## License
 
