@@ -36,18 +36,39 @@ def _get_allowed_callers() -> set:
     return set(filter(None, os.environ.get("ALLOWED_CALLERS", "").split(",")))
 
 
+def _get_expected_audience() -> Optional[str]:
+    """The service URL this gateway expects in token `aud` claim.
+
+    Set EXPECTED_AUDIENCE to the Cloud Run service URL
+    (e.g. https://your-mcp-gateway-url.run.app). Required outside DEV_MODE.
+    """
+    return os.environ.get("EXPECTED_AUDIENCE") or None
+
+
 def _verify_google_id_token(token: str) -> dict:
-    """Verify a Google-issued ID token and return claims."""
+    """Verify a Google-issued ID token and return claims.
+
+    Audience verification is enforced: tokens minted for other services
+    (even by the same caller) are rejected. This prevents token-replay
+    attacks where an attacker obtains a valid Google ID token from any
+    Google API call and tries to authenticate against this gateway.
+    """
     from google.oauth2 import id_token
     from google.auth.transport.requests import Request as GoogleRequest
 
+    audience = _get_expected_audience()
+    if not audience:
+        raise HTTPException(
+            status_code=500,
+            detail="EXPECTED_AUDIENCE is not configured — refusing to verify tokens.",
+        )
+
     try:
-        claims = id_token.verify_oauth2_token(token, GoogleRequest())
+        claims = id_token.verify_oauth2_token(token, GoogleRequest(), audience=audience)
         return claims
     except Exception:
-        # Try as a Google service account token
         try:
-            claims = id_token.verify_token(token, GoogleRequest())
+            claims = id_token.verify_token(token, GoogleRequest(), audience=audience)
             return claims
         except Exception as exc:
             raise HTTPException(
@@ -90,13 +111,20 @@ async def require_auth(
         logger.info("Authenticated via API key")
         return {"email": "api-key-user", "auth_method": "api_key"}
 
-    # Verify Google ID token
+    # Verify Google ID token (audience-bound — rejects tokens minted for other services)
     claims = _verify_google_id_token(token)
     caller_email = claims.get("email", "unknown")
 
-    # Check allowlist (if configured)
+    # Fail-closed allowlist: ALLOWED_CALLERS must be set outside DEV_MODE.
+    # Empty allowlist would otherwise grant access to any authenticated Google identity.
     allowed_callers = _get_allowed_callers()
-    if allowed_callers and caller_email not in allowed_callers:
+    if not allowed_callers:
+        logger.error("ALLOWED_CALLERS is empty in non-dev mode — refusing request")
+        raise HTTPException(
+            status_code=500,
+            detail="ALLOWED_CALLERS is not configured — server refusing requests fail-closed.",
+        )
+    if caller_email not in allowed_callers:
         logger.warning("Caller not in allowlist", extra={"email": caller_email})
         raise HTTPException(
             status_code=403,
