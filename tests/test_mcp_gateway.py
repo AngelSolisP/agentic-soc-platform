@@ -329,9 +329,11 @@ async def test_global_cache_invalidation_requires_api_key(test_client):
     # Switch from DEV_MODE to API key auth
     os.environ.pop("DEV_MODE", None)
     os.environ["API_KEYS"] = "test-api-key"
+    os.environ["EXPECTED_AUDIENCE"] = "https://test-gateway.run.app"
+    os.environ["ALLOWED_CALLERS"] = "user@example.com"
 
     try:
-        # Google ID token user should be rejected
+        # Google ID token user should be rejected (auth passes but endpoint requires API key)
         with patch("proxy.mcp_gateway.auth_middleware._verify_google_id_token") as mock_verify:
             mock_verify.return_value = {"email": "user@example.com"}
             response = await test_client.delete(
@@ -350,6 +352,8 @@ async def test_global_cache_invalidation_requires_api_key(test_client):
     finally:
         os.environ["DEV_MODE"] = "true"
         os.environ.pop("API_KEYS", None)
+        os.environ.pop("EXPECTED_AUDIENCE", None)
+        os.environ.pop("ALLOWED_CALLERS", None)
 
 
 @pytest.mark.asyncio
@@ -485,3 +489,42 @@ async def test_upstream_501_with_mcp_error_normalized_to_200(test_client, mock_c
     assert response.status_code == 200
     body = response.json()
     assert body["result"]["isError"] is True
+
+
+@pytest.mark.asyncio
+async def test_auth_fails_closed_when_allowed_callers_empty(test_client):
+    """ALLOWED_CALLERS unset in non-dev mode must reject all Google ID tokens (fail-closed)."""
+    import os
+    os.environ.pop("DEV_MODE", None)
+    os.environ["EXPECTED_AUDIENCE"] = "https://test-gateway.run.app"
+    os.environ.pop("ALLOWED_CALLERS", None)
+    try:
+        with patch("proxy.mcp_gateway.auth_middleware._verify_google_id_token") as mock_verify:
+            mock_verify.return_value = {"email": "anyone@example.com"}
+            response = await test_client.delete(
+                "/cache",
+                headers={"Authorization": "Bearer some-google-id-token"},
+            )
+            assert response.status_code == 500
+            assert "ALLOWED_CALLERS" in response.json()["detail"]
+    finally:
+        os.environ["DEV_MODE"] = "true"
+        os.environ.pop("EXPECTED_AUDIENCE", None)
+
+
+@pytest.mark.asyncio
+async def test_auth_rejects_when_expected_audience_unset(test_client):
+    """EXPECTED_AUDIENCE unset in non-dev mode must refuse to verify any token."""
+    import os
+    from proxy.mcp_gateway.auth_middleware import _verify_google_id_token
+    from fastapi import HTTPException
+
+    os.environ.pop("DEV_MODE", None)
+    os.environ.pop("EXPECTED_AUDIENCE", None)
+    try:
+        with pytest.raises(HTTPException) as exc_info:
+            _verify_google_id_token("any-token")
+        assert exc_info.value.status_code == 500
+        assert "EXPECTED_AUDIENCE" in exc_info.value.detail
+    finally:
+        os.environ["DEV_MODE"] = "true"
