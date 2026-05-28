@@ -119,6 +119,32 @@ You'll need: a Chronicle SecOps tenant, a GCP project with Vertex AI enabled, an
 
 See `cloudbuild.yaml` for the staging deploy pipeline (tests → evals → Docker → Cloud Run). Terraform in `infra/terraform/` provisions: APIs, service accounts, IAM bindings, Cloud Run services, Firestore database, budget alerts.
 
+## Screenshots
+
+### Dashboard
+
+Real-time queue of open cases across all tenants the analyst is authorized for. Each row shows verdict, priority, pipeline stage progress, and assigned agent.
+
+![Dashboard](docs/screenshots/Dashboard.png)
+
+### Case detail
+
+Three views per case. **Summary** shows alerts, IoCs, and the proposed action awaiting analyst decision. **Pipeline** is the Glass Box — full structured output of each agent stage, on-demand. **Timeline** is the chronological event log.
+
+| Summary (with HITL approval) | Pipeline (Glass Box) | Timeline |
+|---|---|---|
+| ![Case Summary](docs/screenshots/Case_Summary.png) | ![Case Pipeline](docs/screenshots/Case_Pipeline.png) | ![Case Timeline](docs/screenshots/Case_Timeline.png) |
+
+### Admin
+
+Five admin views for MSSP governance: per-tenant overview, client onboarding, analyst-to-client assignments, agent performance metrics, and full audit log (CSV-exportable).
+
+| Overview | Clients |
+|---|---|
+| ![Admin Overview](docs/screenshots/Admin_Overview.png) | ![Admin Clients](docs/screenshots/Admin_Clients.png) |
+| **Analysts** | **Audit Log** |
+| ![Admin Analysts](docs/screenshots/Admin_Analysts.png) | ![Admin Audit Log](docs/screenshots/Admin_AuditLog.png) |
+
 ## Status
 
 Implementation phases 0–8 complete:
